@@ -18,41 +18,43 @@
         .screen.active { display: flex; animation: fadeIn 0.3s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 { margin-bottom: 5px; text-align: center; font-size: 20px; }
-        p.subtitle { color: var(--text-muted); margin-bottom: 20px; text-align: center; font-size: 13px; }
+        h2 { margin-bottom: 5px; text-align: center; font-size: 22px; }
+        p.subtitle { color: var(--text-muted); margin-bottom: 25px; text-align: center; font-size: 14px; }
 
-        .grid-suits { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 350px; }
-        .grid-ranks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; max-width: 350px; }
+        /* Томруулсан товчлууруудын сетка */
+        .grid-suits { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 380px; }
+        .grid-ranks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 380px; }
         
         button { 
-            background: var(--surface); border: 2px solid #333; border-radius: 12px;
-            color: var(--text); font-size: 24px; font-weight: bold; padding: 16px 10px;
+            background: var(--surface); border: 2px solid #333; border-radius: 16px;
+            color: var(--text); font-size: 28px; font-weight: bold; padding: 22px 10px;
             cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-            transition: transform 0.1s, border-color 0.2s; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.1s, border-color 0.2s, background-color 0.2s; 
+            display: flex; justify-content: center; align-items: center;
         }
-        button:active { transform: scale(0.92); border-color: var(--primary); }
+        button:active { transform: scale(0.95); border-color: var(--primary); background: #2a2a2a; }
         button.red { color: var(--red-suit); }
         button.black { color: var(--black-suit); }
 
         .loader { border: 4px solid #333; border-top: 4px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-top: 50px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .result-card { background: var(--surface); padding: 12px; border-radius: 16px; width: 100%; max-width: 400px; margin-bottom: 12px; text-align: center; }
-        .section-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px; }
-        .cards-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
-        .mini-card { background: var(--board-bg); border-radius: 8px; padding: 6px 10px; font-size: 18px; font-weight: bold; border: 1px solid #444; min-width: 40px; display: inline-flex; justify-content: center; align-items: center; }
+        .result-card { background: var(--surface); padding: 14px; border-radius: 16px; width: 100%; max-width: 400px; margin-bottom: 12px; text-align: center; }
+        .section-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px; }
+        .cards-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
+        .mini-card { background: var(--board-bg); border-radius: 8px; padding: 8px 12px; font-size: 20px; font-weight: bold; border: 1px solid #444; min-width: 45px; display: inline-flex; justify-content: center; align-items: center; }
         
         .stat-row { margin-bottom: 8px; text-align: left; }
-        .stat-labels { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 12px; font-weight: 600; }
+        .stat-labels { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 13px; font-weight: 600; }
         .bar-bg { width: 100%; background: #333; height: 14px; border-radius: 7px; overflow: hidden; }
         .bar-fill { height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        .module-box { background: #222; border: 1px solid #3a3a3a; padding: 10px 14px; border-radius: 12px; width: 100%; max-width: 400px; margin-bottom: 12px; text-align: left; }
-        .module-header { font-weight: bold; font-size: 13px; margin-bottom: 4px; color: var(--primary); display: flex; align-items: center; gap: 6px; }
-        .module-desc { font-size: 12px; color: var(--text-muted); line-height: 1.3; }
+        .module-box { background: #222; border: 1px solid #3a3a3a; padding: 12px 16px; border-radius: 12px; width: 100%; max-width: 400px; margin-bottom: 12px; text-align: left; }
+        .module-header { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: var(--primary); display: flex; align-items: center; gap: 6px; }
+        .module-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
-        .btn-restart { background: var(--primary); color: #000; border: none; font-size: 15px; padding: 12px 20px; width: 100%; max-width: 400px; font-weight: bold; border-radius: 12px; cursor: pointer; margin-bottom: 20px; }
-        .btn-secondary { background: #333; color: var(--text); border: none; font-size: 14px; padding: 12px 20px; width: 100%; max-width: 350px; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 10px; }
+        .btn-restart { background: var(--primary); color: #000; border: none; font-size: 16px; padding: 16px 20px; width: 100%; max-width: 400px; font-weight: bold; border-radius: 14px; cursor: pointer; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -81,20 +83,21 @@
         <div class="grid-ranks" id="ranks2"></div>
     </div>
 
-    <!-- ФЛОП СОНГОХ ЦЭС (Шинэ) -->
-    <div id="stepFlop" class="screen">
-        <h2>Флоп (Flop)</h2>
-        <p class="subtitle">Газар сөхөгдөх 3 картыг сонгох эсвэл санамсаргүй үүсгэх</p>
-        <div id="flop-selection-container" style="width:100%; max-width:350px; text-align:center;">
-            <div id="selected-flop-display" class="cards-row" style="margin-bottom:20px; min-height:45px;"></div>
-            <p id="flop-instruction" style="font-size:13px; color:var(--primary); margin-bottom:15px;">1 дэх флоп картын масть сонгоно уу:</p>
-            <div class="grid-suits" id="flopSuits"></div>
-            <div class="grid-ranks" id="flopRanks" style="display:none;"></div>
-            <button class="btn-secondary" onclick="randomizeFlop()" style="margin-top:20px;">Санамсаргүйгээр үүсгэх</button>
-        </div>
+    <!-- ФЛОП СӨХӨГДӨХ 3 КАРТЫГ ГАРААС ОРУУЛАХ ЦЭС -->
+    <div id="stepFlopSuit" class="screen">
+        <h2 id="flop-suit-title">Флоп (1/3 карт)</h2>
+        <p class="subtitle">Энэ картын масть сонгоно уу</p>
+        <div id="selected-flop-display" class="cards-row" style="margin-bottom:15px; min-height:45px;"></div>
+        <div class="grid-suits" id="flopSuits"></div>
     </div>
 
-    <!-- Ачаалж байна -->
+    <div id="stepFlopRank" class="screen">
+        <h2 id="flop-rank-title">Флоп (1/3 карт)</h2>
+        <p class="subtitle">Энэ картын утга сонгоно уу</p>
+        <div class="grid-ranks" id="flopRanks"></div>
+    </div>
+
+    <!-- Тооцоолж байна -->
     <div id="stepCalc" class="screen">
         <h2>Тооцоолж байна...</h2>
         <p class="subtitle">Monte Carlo симуляци хийж байна</p>
@@ -109,7 +112,7 @@
             <div class="section-title">Таны гар</div>
             <div class="cards-row" id="my-hole-cards"></div>
             
-            <div class="section-title">Газар сөхөгдсөн мод (Flop Board)</div>
+            <div class="section-title">Таны оруулсан Флоп мод</div>
             <div class="cards-row" id="flop-cards-result"></div>
 
             <div class="stat-row">
@@ -149,8 +152,7 @@
             c1: { s: null, r: null }, 
             c2: { s: null, r: null },
             flop: [],
-            currentFlopCardStep: 0, // 0: suit1, 1: rank1, 2: suit2, 3: rank2, 4: suit3, 5: rank3
-            tempFlopCard: { s: null, r: null }
+            tempSuit: null
         };
 
         function initUI() {
@@ -158,7 +160,7 @@
             document.getElementById('suits2').innerHTML = suits.map(s => `<button class="${s.color}" onclick="setSuit(2, ${s.s})">${s.icon}</button>`).join('');
             document.getElementById('ranks1').innerHTML = ranks.map(r => `<button onclick="setRank(1, ${r.r})">${r.n}</button>`).join('');
             document.getElementById('ranks2').innerHTML = ranks.map(r => `<button onclick="setRank(2, ${r.r})">${r.n}</button>`).join('');
-            initFlopUI();
+            initFlopInputUI();
         }
 
         function showScreen(screenId) {
@@ -182,55 +184,49 @@
                 }
                 state.c2.r = r;
                 state.flop = [];
-                state.currentFlopCardStep = 0;
-                updateFlopUI();
-                showScreen('stepFlop');
+                startFlopInput();
             }
         }
 
-        // Флоп сонгох логик
-        function initFlopUI() {
+        function initFlopInputUI() {
             document.getElementById('flopSuits').innerHTML = suits.map(s => `<button class="${s.color}" onclick="handleFlopSuit(${s.s})">${s.icon}</button>`).join('');
             document.getElementById('flopRanks').innerHTML = ranks.map(r => `<button onclick="handleFlopRank(${r.r})">${r.n}</button>`).join('');
         }
 
+        function startFlopInput() {
+            let idx = state.flop.length + 1;
+            document.getElementById('flop-suit-title').innerText = `Флоп (${idx}/3 карт)`;
+            document.getElementById('flop-rank-title').innerText = `Флоп (${idx}/3 карт)`;
+            updateFlopPreview();
+            showScreen('stepFlopSuit');
+        }
+
         function handleFlopSuit(s) {
-            // Давхардсан эсэхийг шалгах
-            state.tempFlopCard.s = s;
-            document.getElementById('flopSuits').style.display = 'none';
-            document.getElementById('flopRanks').style.display = 'grid';
-            let cardNum = (state.flop.length + 1);
-            document.getElementById('flop-instruction').innerText = `${cardNum}-р флоп картын утга сонгоно уу:`;
+            state.tempSuit = s;
+            showScreen('stepFlopRank');
         }
 
         function handleFlopRank(r) {
-            let s = state.tempFlopCard.s;
-            // Карт давхардсан эсэх
-            if ((s === state.c1.s && r === state.c1.r) || (s === state.c2.s && r === state.c2.r) ||
+            let s = state.tempSuit;
+            if ((s === state.c1.s && r === state.c1.r) || 
+                (s === state.c2.s && r === state.c2.r) ||
                 state.flop.some(c => c.s === s && c.r === r)) {
-                alert("Энэ карт аль хэдийн сонгогдсон байна!");
-                document.getElementById('flopRanks').style.display = 'none';
-                document.getElementById('flopSuits').style.display = 'grid';
+                alert("Энэ карт аль хэдийн сонгогдсон байна! Өөр карт сонгоно уу.");
+                showScreen('stepFlopSuit');
                 return;
             }
 
             state.flop.push({ s, r });
-            state.tempFlopCard = { s: null, r: null };
-            updateFlopUI();
-
+            
             if (state.flop.length < 3) {
-                document.getElementById('flopRanks').style.display = 'none';
-                document.getElementById('flopSuits').style.display = 'grid';
-                let cardNum = (state.flop.length + 1);
-                document.getElementById('flop-instruction').innerText = `${cardNum}-р флоп картын масть сонгоно уу:`;
+                startFlopInput();
             } else {
-                // 3 карт сонгогдлоо, тооцоолол руу шилжих
                 showScreen('stepCalc');
                 setTimeout(runSimulation, 50);
             }
         }
 
-        function updateFlopUI() {
+        function updateFlopPreview() {
             const getRankName = r => ranks.find(x => x.r === r).n;
             const getSuitIcon = s => suits.find(x => x.s === s).icon;
             const getSuitColor = s => suits.find(x => x.s === s).color === 'red' ? 'var(--red-suit)' : 'var(--text)';
@@ -239,33 +235,11 @@
             document.getElementById('selected-flop-display').innerHTML = html;
         }
 
-        function randomizeFlop() {
-            let deck = [];
-            for (let s = 0; s < 4; s++) {
-                for (let r = 2; r <= 14; r++) {
-                    if ((s === state.c1.s && r === state.c1.r) || (s === state.c2.s && r === state.c2.r)) continue;
-                    deck.push({ s, r });
-                }
-            }
-            // холих
-            for (let j = deck.length - 1; j > 0; j--) {
-                const k = Math.floor(Math.random() * (j + 1));
-                [deck[j], deck[k]] = [deck[k], deck[j]];
-            }
-            state.flop = [deck[0], deck[1], deck[2]];
-            updateFlopUI();
-            showScreen('stepCalc');
-            setTimeout(runSimulation, 50);
-        }
-
         function resetApp() {
-            state = { c1: { s: null, r: null }, c2: { s: null, r: null }, flop: [], currentFlopCardStep: 0, tempFlopCard: { s: null, r: null } };
+            state = { c1: { s: null, r: null }, c2: { s: null, r: null }, flop: [], tempSuit: null };
             document.getElementById('bar-win').style.width = '0%';
             document.getElementById('bar-tie').style.width = '0%';
             document.getElementById('bar-loss').style.width = '0%';
-            document.getElementById('flopSuits').style.display = 'grid';
-            document.getElementById('flopRanks').style.display = 'none';
-            document.getElementById('flop-instruction').innerText = `1 дэх флоп картын масть сонгоно уу:`;
             showScreen('step1');
         }
 
@@ -345,7 +319,6 @@
                     [deck[j], deck[k]] = [deck[k], deck[j]];
                 }
                 
-                // Эхний 2 карт нь Turn, River карт болж орно
                 let fullBoard = [...state.flop, deck[0], deck[1]];
                 let opp = [deck[2], deck[3]];
 
@@ -378,7 +351,6 @@
             document.getElementById('txt-tie').innerText = pTie + '%';
             document.getElementById('txt-loss').innerText = pLoss + '%';
 
-            // "Газар сөхөгдсөн мод" болон Fold, Check, Bet логик модуль
             let isPocketPair = (state.c1.r === state.c2.r);
             let hitSet = state.flop.some(c => c.r === state.c1.r);
             let modTitle = "";
@@ -386,7 +358,31 @@
 
             if (isPocketPair && hitSet) {
                 modTitle = "🔥 Газар сөхөгдсөн мод (Flopped Set)!";
-                modDesc = "Таны халаасны хос карт флоп дээрх карттай таарч хүчирхэг Set үүслээ! Энэ үед маш ашигтай тул <strong>Bet</strong> хийж мөнгө өсгөх эсвэл өрсөлдөгчөө шахаарай.";
+                modDesc = "Таны халаасны хос карт таны оруулсан флоп модтой таарч маш хүчтэй Set үүслээ! Энэ үед ашиглаж <strong>Bet</strong> хийж мөнгө өсгөх эсвэл өрсөлдөгчөө шахаарай.";
             } else if (parseFloat(pWin) > 65) {
-                modTitle = "💪 Маш өндөр магадлал (Strong Flop)";
-                modDesc = "Таны гар болон флоп хослоод маш давуу байдал үүсгэлээ
+                modTitle = "💪 Маш өндөр магадлал (Strong Hand)";
+                modDesc = "Таны гар болон таны оруулсан флоп маш давуу байдал үүсгэлээ. Санаачилгыг гартаа авч <strong>Bet</strong> хийх нь зөв.";
+            } else if (parseFloat(pWin) >= 40) {
+                modTitle = "⚖️ Дунд зэргийн боломж (Marginal / Check)";
+                modDesc = "Боломжийн магадлалтай байна. Хэрэв өрсөлдөгч их бооцоо тавиагүй бол <strong>Check</strong> хийж үнэгүй карт харахыг хичээ.";
+            } else {
+                modTitle = "⚠️ Сул байрлал (Weak / Fold)";
+                modDesc = "Энэхүү флоп дээр ямар нэгэн ашигтай хослол үүссэнгүй эсвэл магадлал бага байна. Эрсдэлээс зайлсхийхийн тулд <strong>Fold</strong> хийх нь зөв.";
+            }
+
+            document.getElementById('mod-title').innerHTML = modTitle;
+            document.getElementById('mod-desc').innerHTML = modDesc;
+
+            showScreen('stepResult');
+
+            setTimeout(() => {
+                document.getElementById('bar-win').style.width = pWin + '%';
+                document.getElementById('bar-tie').style.width = pTie + '%';
+                document.getElementById('bar-loss').style.width = pLoss + '%';
+            }, 50);
+        }
+
+        initUI();
+    </script>
+</body>
+</html>
