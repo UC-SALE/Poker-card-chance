@@ -9,8 +9,8 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
 body{font-family:Arial,system-ui,sans-serif;background:#06140d;color:#fff}
-.screen{position:absolute;top:0;left:0;width:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;max-width:600px;margin:auto;background:radial-gradient(circle at 50% 10%,#24623f,#0b2d1d 45%,#06140d);visibility:hidden;opacity:0;transition:opacity 0.2s ease}
-.screen:not(.hidden){visibility:visible;opacity:1;z-index:10}
+.screen{position:absolute;top:0;left:0;width:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;max-width:600px;margin:auto;background:radial-gradient(circle at 50% 10%,#24623f,#0b2d1d 45%,#06140d);visibility:hidden;opacity:0;transition:opacity 0.15s ease}
+.screen.active{visibility:visible;opacity:1;z-index:10}
 .title{position:absolute;top:calc(env(safe-area-inset-top) + 20px);font-size:25px;font-weight:900}
 .info{position:absolute;top:calc(env(safe-area-inset-top) + 62px);font-size:14px;color:#b5cdbd}
 .suits{width:min(92vw,450px);display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -26,13 +26,12 @@ body{font-family:Arial,system-ui,sans-serif;background:#06140d;color:#fff}
 .resultbox{width:min(90vw,430px);padding:20px;background:#071b11;border:1px solid #2d704a;border-radius:22px;text-align:center}
 .big{font-size:62px;font-weight:950;color:#6df2a0}.muted{font-size:12px;color:#a5bdb0}
 .stat{text-align:left;margin-top:13px}.top{display:flex;justify-content:space-between;font-size:12px}.bar{height:8px;background:#ffffff14;border-radius:9px;margin-top:4px}.fill{height:100%;background:#59dd8e;border-radius:9px}
-.hidden{display:none!important}
 </style>
 </head>
 <body>
 
 <!-- 1-р картын масть -->
-<div id="screenSuit1" class="screen">
+<div id="screenSuit1" class="screen active">
   <div class="title">♠ POKER ODDS</div>
   <div class="info">1-р картын масть сонго</div>
   <div class="suits">
@@ -44,7 +43,7 @@ body{font-family:Arial,system-ui,sans-serif;background:#06140d;color:#fff}
 </div>
 
 <!-- 1-р картын rank -->
-<div id="screenRank1" class="screen hidden">
+<div id="screenRank1" class="screen">
   <div class="title">1-Р КАРТ</div>
   <div class="info">A · K · Q · J · 10 ... сонго</div>
   <div id="ranks1" class="ranks"></div>
@@ -52,7 +51,7 @@ body{font-family:Arial,system-ui,sans-serif;background:#06140d;color:#fff}
 </div>
 
 <!-- 2-р картын масть -->
-<div id="screenSuit2" class="screen hidden">
+<div id="screenSuit2" class="screen">
   <div class="title">♠ POKER ODDS</div>
   <div class="info">2-р картын масть сонго</div>
   <div id="card1" class="cards"></div>
@@ -66,7 +65,7 @@ body{font-family:Arial,system-ui,sans-serif;background:#06140d;color:#fff}
 </div>
 
 <!-- 2-р картын rank -->
-<div id="screenRank2" class="screen hidden">
+<div id="screenRank2" class="screen">
   <div class="title">2-Р КАРТ</div>
   <div class="info">Тоо / дүрсээ сонго</div>
   <div id="card2" class="cards"></div>
@@ -75,7 +74,7 @@ body{font-family:Arial,system-ui,sans-serif;background:#06140d;color:#fff}
 </div>
 
 <!-- Үр дүн -->
-<div id="screenResult" class="screen hidden">
+<div id="screenResult" class="screen">
   <div class="title">♠ POKER ODDS</div>
   <div id="finalCards" class="cards"></div>
   <div class="resultbox">
@@ -94,24 +93,15 @@ let hand=[];
 let firstSuit="";
 let secondSuit="";
 
-function screen(id){
-  document.querySelectorAll(".screen").forEach(x=>{
-    x.classList.add("hidden");
-    x.style.zIndex = "0";
-  });
-  const target = document.getElementById(id);
-  if(target){
-    target.classList.remove("hidden");
-    target.style.zIndex = "10";
-  }
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+  const target=document.getElementById(id);
+  if(target) target.classList.add("active");
 }
 
-// Эхлэх дэлгэцийг идэвхжүүлэх
-screen("screenSuit1");
-
-function makeRanks(id,num){
-  const box=document.getElementById(id);
-  box.innerHTML = "";
+function makeRanks(containerId,num){
+  const box=document.getElementById(containerId);
+  box.innerHTML="";
   RANKS.forEach(r=>{
     const b=document.createElement("button");
     b.type="button";
@@ -124,6 +114,7 @@ function makeRanks(id,num){
     box.appendChild(b);
   });
 }
+
 makeRanks("ranks1",1);
 makeRanks("ranks2",2);
 
@@ -134,11 +125,11 @@ document.querySelectorAll(".suit").forEach(b=>{
     const suit=this.getAttribute("data-suit");
     if(step==="1"){
       firstSuit=suit;
-      screen("screenRank1");
+      showScreen("screenRank1");
     }else{
       secondSuit=suit;
       document.getElementById("card2").innerHTML=cardHTML(hand[0]);
-      screen("screenRank2");
+      showScreen("screenRank2");
     }
   });
 });
@@ -146,21 +137,21 @@ document.querySelectorAll(".suit").forEach(b=>{
 function chooseRank1(r){
   hand=[{r:r,s:firstSuit}];
   document.getElementById("card1").innerHTML=cardHTML(hand[0]);
-  screen("screenSuit2");
+  showScreen("screenSuit2");
 }
 
 function chooseRank2(r){
-  if(hand.length!==1)return;
+  if(hand.length!==1) return;
   const c={r:r,s:secondSuit};
-  if(c.r===hand[0].r && c.s===hand[0].s)return;
+  if(c.r===hand[0].r && c.s===hand[0].s) return; // Ижил карт давхардаж орохоос сэргийлэх
   hand.push(c);
   document.getElementById("finalCards").innerHTML=cardHTML(hand[0])+cardHTML(hand[1]);
-  screen("screenResult");
+  showScreen("screenResult");
   setTimeout(calculate,30);
 }
 
 function cardHTML(c){
-  if(!c)return "";
+  if(!c) return "";
   const red=(c.s==="♥"||c.s==="♦")?" red":"";
   return '<div class="card'+red+'"><div class="cr">'+c.r+'</div><div class="cs">'+c.s+'</div></div>';
 }
@@ -168,10 +159,10 @@ function cardHTML(c){
 document.querySelectorAll(".back").forEach(b=>{
   b.addEventListener("click",function(){
     const to=this.getAttribute("data-back");
-    if(to==="reset"){hand=[];firstSuit="";secondSuit="";screen("screenSuit1")}
-    else if(to==="suit1")screen("screenSuit1");
-    else if(to==="rank1")screen("screenRank1");
-    else if(to==="suit2")screen("screenSuit2");
+    if(to==="reset"){hand=[];firstSuit="";secondSuit="";showScreen("screenSuit1");}
+    else if(to==="suit1") showScreen("screenSuit1");
+    else if(to==="rank1") showScreen("screenRank1");
+    else if(to==="suit2") showScreen("screenSuit2");
   });
 });
 
@@ -183,35 +174,35 @@ function evaluate(cards){
   const groups=Object.keys(count).map(r=>({v:value(r),n:count[r]})).sort((a,b)=>b.n-a.n||b.v-a.v);
   function straight(arr){
     let u=[...new Set(arr.map(value))].sort((a,b)=>b-a);
-    if(u.includes(14))u.push(1);
-    for(let i=0;i<=u.length-5;i++)if(u[i]-u[i+4]===4)return u[i];
+    if(u.includes(14)) u.push(1);
+    for(let i=0;i<=u.length-5;i++) if(u[i]-u[i+4]===4) return u[i];
     return 0;
   }
   for(const s of ["♠","♥","♣","♦"]){
     const f=cards.filter(c=>c.s===s);
-    if(f.length>=5){const st=straight(f);if(st)return[8,st]}
+    if(f.length>=5){const st=straight(f);if(st) return [8,st];}
   }
   const q=groups.find(x=>x.n===4);
-  if(q)return[7,q.v,...groups.filter(x=>x.v!==q.v).map(x=>x.v)];
+  if(q) return [7,q.v,...groups.filter(x=>x.v!==q.v).map(x=>x.v)];
   const tr=groups.filter(x=>x.n>=3), pairs=groups.filter(x=>x.n>=2);
-  if(tr.length>=2)return[6,tr[0].v,tr[1].v];
-  if(tr.length&&pairs.some(x=>x.v!==tr[0].v))return[6,tr[0].v,pairs.find(x=>x.v!==tr[0].v).v];
+  if(tr.length>=2) return [6,tr[0].v,tr[1].v];
+  if(tr.length&&pairs.some(x=>x.v!==tr[0].v)) return [6,tr[0].v,pairs.find(x=>x.v!==tr[0].v).v];
   for(const s of ["♠","♥","♣","♦"]){
     const f=cards.filter(c=>c.s===s);
-    if(f.length>=5)return[5,...f.map(c=>value(c.r)).sort((a,b)=>b-a).slice(0,5)];
+    if(f.length>=5) return [5,...f.map(c=>value(c.r)).sort((a,b)=>b-a).slice(0,5)];
   }
-  const st=straight(cards);if(st)return[4,st];
-  if(tr.length)return[3,tr[0].v,...groups.filter(x=>x.v!==tr[0].v).map(x=>x.v).slice(0,2)];
+  const st=straight(cards); if(st) return [4,st];
+  if(tr.length) return [3,tr[0].v,...groups.filter(x=>x.v!==tr[0].v).map(x=>x.v).slice(0,2)];
   const p=groups.filter(x=>x.n===2);
-  if(p.length>=2)return[2,p[0].v,p[1].v,...groups.filter(x=>x.n===1).map(x=>x.v).slice(0,1)];
-  if(p.length)return[1,p[0].v,...groups.filter(x=>x.v!==p[0].v).map(x=>x.v).slice(0,3)];
-  return[0,...groups.map(x=>x.v).slice(0,5)];
+  if(p.length>=2) return [2,p[0].v,p[1].v,...groups.filter(x=>x.n===1).map(x=>x.v).slice(0,1)];
+  if(p.length) return [1,p[0].v,...groups.filter(x=>x.v!==p[0].v).map(x=>x.v).slice(0,3)];
+  return [0,...groups.map(x=>x.v).slice(0,5)];
 }
 
 function compare(a,b){
   for(let i=0;i<Math.max(a.length,b.length);i++){
     const x=a[i]||0,y=b[i]||0;
-    if(x!==y)return x>y?1:-1;
+    if(x!==y) return x>y?1:-1;
   }
   return 0;
 }
@@ -219,11 +210,11 @@ function compare(a,b){
 function calculate(){
   const suits=["♠","♥","♣","♦"];
   const deck=[];
-  for(const r of RANKS)for(const s of suits)deck.push({r,s});
+  for(const r of RANKS) for(const s of suits) deck.push({r,s});
   const known=new Set(hand.map(c=>c.r+c.s));
   const available=deck.filter(c=>!known.has(c.r+c.s));
   let win=0,tie=0,lose=0;
-  const N=30000;
+  const N=25000;
 
   for(let n=0;n<N;n++){
     const pool=available.slice();
@@ -234,9 +225,9 @@ function calculate(){
     }
     const opp=draw.slice(0,2),board=draw.slice(2);
     const z=compare(evaluate(hand.concat(board)),evaluate(opp.concat(board)));
-    if(z>0)win++;else if(z<0)lose++;else tie++;
+    if(z>0) win++; else if(z<0) lose++; else tie++;
   }
-  const W=win/N*100,T=tie/N*100,L=lose/N*100;
+  const W=win/N*100, T=tie/N*100, L=lose/N*100;
   document.getElementById("big").textContent=W.toFixed(1)+"%";
   document.getElementById("wp").textContent=W.toFixed(1)+"%";
   document.getElementById("tp").textContent=T.toFixed(1)+"%";
@@ -248,5 +239,3 @@ function calculate(){
 </script>
 </body>
 </html>
-
-```
