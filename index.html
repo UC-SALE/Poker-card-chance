@@ -9,17 +9,17 @@
             --bg: #121212; --surface: #1e1e1e;
             --primary: #bb86fc; --text: #ffffff; --text-muted: #aaaaaa;
             --win: #03dac6; --loss: #cf6679; --tie: #ffb300;
-            --red-suit: #ff4c4c; --black-suit: #ffffff;
+            --red-suit: #ff4c4c; --black-suit: #ffffff; --board-bg: #2a2a2a;
         }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); user-select: none; overscroll-behavior-y: contain; }
         
-        .screen { display: none; flex-direction: column; align-items: center; justify-content: start; min-height: 100vh; padding: 30px 20px; }
+        .screen { display: none; flex-direction: column; align-items: center; justify-content: start; min-height: 100vh; padding: 25px 15px; }
         .screen.active { display: flex; animation: fadeIn 0.3s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         h2 { margin-bottom: 5px; text-align: center; font-size: 22px; }
-        p.subtitle { color: var(--text-muted); margin-bottom: 30px; text-align: center; font-size: 14px; }
+        p.subtitle { color: var(--text-muted); margin-bottom: 20px; text-align: center; font-size: 14px; }
 
         .grid-suits { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 350px; }
         .grid-ranks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 350px; }
@@ -37,18 +37,21 @@
         .loader { border: 4px solid #333; border-top: 4px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-top: 50px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .result-card { background: var(--surface); padding: 20px; border-radius: 16px; width: 100%; max-width: 400px; margin-bottom: 20px; text-align: center; }
-        .my-hand { font-size: 32px; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px; }
+        .result-card { background: var(--surface); padding: 15px; border-radius: 16px; width: 100%; max-width: 400px; margin-bottom: 15px; text-align: center; }
+        .section-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        .cards-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+        .mini-card { background: var(--board-bg); border-radius: 8px; padding: 8px 12px; font-size: 20px; font-weight: bold; border: 1px solid #444; min-width: 45px; display: inline-flex; justify-content: center; align-items: center; }
         
-        .stat-row { margin-bottom: 12px; text-align: left; }
-        .stat-labels { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px; font-weight: 600; }
-        .bar-bg { width: 100%; background: #333; height: 18px; border-radius: 9px; overflow: hidden; }
+        .stat-row { margin-bottom: 10px; text-align: left; }
+        .stat-labels { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 12px; font-weight: 600; }
+        .bar-bg { width: 100%; background: #333; height: 16px; border-radius: 8px; overflow: hidden; }
         .bar-fill { height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        .advice-box { background: #262626; border-left: 4px solid var(--primary); padding: 12px 15px; border-radius: 8px; width: 100%; max-width: 400px; margin-bottom: 20px; text-align: left; font-size: 14px; }
-        .advice-title { font-weight: bold; margin-bottom: 4px; color: var(--primary); }
+        .module-box { background: #222; border: 1px solid #3a3a3a; padding: 12px 15px; border-radius: 12px; width: 100%; max-width: 400px; margin-bottom: 15px; text-align: left; }
+        .module-header { font-weight: bold; font-size: 14px; margin-bottom: 6px; color: var(--primary); display: flex; align-items: center; gap: 6px; }
+        .module-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
-        .btn-restart { background: var(--primary); color: #000; border: none; font-size: 18px; padding: 15px 30px; width: 100%; max-width: 400px; }
+        .btn-restart { background: var(--primary); color: #000; border: none; font-size: 16px; padding: 14px 30px; width: 100%; max-width: 400px; font-weight: bold; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -75,32 +78,38 @@
 
     <div id="step5" class="screen">
         <h2>Тооцоолж байна...</h2>
-        <p class="subtitle">Monte Carlo симуляци ажиллаж байна</p>
+        <p class="subtitle">Monte Carlo симуляци хийж байна</p>
         <div class="loader"></div>
     </div>
 
     <div id="step6" class="screen">
-        <h2>Үр дүн ба Зөвлөмж</h2><p class="subtitle">3000 удаагийн симуляци</p>
+        <h2>Үр дүн ба Мод Модуль</h2><p class="subtitle">Симуляцийн үр дүн</p>
+        
         <div class="result-card">
-            <div class="my-hand" id="hand-display"></div>
+            <div class="section-title">Таны гар</div>
+            <div class="cards-row" id="my-hole-cards"></div>
             
+            <div class="section-title">Газар сөхөгдсөн мод (Flop Board)</div>
+            <div class="cards-row" id="flop-cards"></div>
+
             <div class="stat-row">
-                <div class="stat-labels"><span>Хожих магадлал</span><span id="txt-win" style="color: var(--win)">0%</span></div>
+                <div class="stat-labels"><span>Хожих</span><span id="txt-win" style="color: var(--win)">0%</span></div>
                 <div class="bar-bg"><div class="bar-fill" id="bar-win" style="background: var(--win);"></div></div>
             </div>
             <div class="stat-row">
-                <div class="stat-labels"><span>Тэнцэх магадлал</span><span id="txt-tie" style="color: var(--tie)">0%</span></div>
+                <div class="stat-labels"><span>Тэнцэх</span><span id="txt-tie" style="color: var(--tie)">0%</span></div>
                 <div class="bar-bg"><div class="bar-fill" id="bar-tie" style="background: var(--tie);"></div></div>
             </div>
             <div class="stat-row">
-                <div class="stat-labels"><span>Хожигдох магадлал</span><span id="txt-loss" style="color: var(--loss)">0%</span></div>
+                <div class="stat-labels"><span>Хожигдох</span><span id="txt-loss" style="color: var(--loss)">0%</span></div>
                 <div class="bar-bg"><div class="bar-fill" id="bar-loss" style="background: var(--loss);"></div></div>
             </div>
         </div>
 
-        <div class="advice-box" id="advice-content">
-            <div class="advice-title">Тоглоомын зөвлөмж:</div>
-            <div id="advice-text">Ачаалж байна...</div>
+        <!-- Газар сөхөгдсөн мод болон стратегийн модуль -->
+        <div class="module-box" id="flopped-mod-container">
+            <div class="module-header" id="mod-title">♠️ Газар сөхөгдсөн модны төлөв</div>
+            <div class="module-desc" id="mod-desc">Мэдээлэл боловсруулж байна...</div>
         </div>
 
         <button class="btn-restart" onclick="resetApp()">Дахин эхлэх</button>
@@ -120,18 +129,10 @@
         let state = { step: 1, c1: { s: null, r: null }, c2: { s: null, r: null } };
 
         function initUI() {
-            const createSuits = (stepNum) => suits.map(suit => 
-                `<button class="${suit.color}" onclick="setSuit(${stepNum}, ${suit.s})">${suit.icon}</button>`
-            ).join('');
-            
-            const createRanks = (stepNum) => ranks.map(rank => 
-                `<button onclick="setRank(${stepNum}, ${rank.r})">${rank.n}</button>`
-            ).join('');
-
-            document.getElementById('suits1').innerHTML = createSuits(1);
-            document.getElementById('suits2').innerHTML = createSuits(2);
-            document.getElementById('ranks1').innerHTML = createRanks(1);
-            document.getElementById('ranks2').innerHTML = createRanks(2);
+            document.getElementById('suits1').innerHTML = suits.map(s => `<button class="${s.color}" onclick="setSuit(1, ${s.s})">${s.icon}</button>`).join('');
+            document.getElementById('suits2').innerHTML = suits.map(s => `<button class="${s.color}" onclick="setSuit(2, ${s.s})">${s.icon}</button>`).join('');
+            document.getElementById('ranks1').innerHTML = ranks.map(r => `<button onclick="setRank(1, ${r.r})">${r.n}</button>`).join('');
+            document.getElementById('ranks2').innerHTML = ranks.map(r => `<button onclick="setRank(2, ${r.r})">${r.n}</button>`).join('');
         }
 
         function showStep(step) {
@@ -150,7 +151,7 @@
                 showStep(3);
             } else {
                 if (state.c1.s === state.c2.s && state.c1.r === r) {
-                    alert("Энэ карт сонгогдсон байна. Өөр утга сонгоно уу.");
+                    alert("Энэ карт аль хэдийн сонгогдсон байна!");
                     return;
                 }
                 state.c2.r = r;
@@ -233,8 +234,9 @@
             }
 
             let wins = 0, ties = 0, losses = 0;
-            const iters = 3000;
-            
+            const iters = 2000;
+            let sampleBoard = [];
+
             for (let i = 0; i < iters; i++) {
                 for (let j = deck.length - 1; j > 0; j--) {
                     const k = Math.floor(Math.random() * (j + 1));
@@ -242,6 +244,8 @@
                 }
                 
                 let board = [deck[0], deck[1], deck[2], deck[3], deck[4]];
+                if (i === 0) sampleBoard = [deck[0], deck[1], deck[2]]; // Жишээ Флоп
+
                 let opp = [deck[5], deck[6]];
 
                 let myScore = evaluateHand([state.c1, state.c2, ...board]);
@@ -257,9 +261,15 @@
             const getSuitIcon = s => suits.find(x => x.s === s).icon;
             const getSuitColor = s => suits.find(x => x.s === s).color === 'red' ? 'var(--red-suit)' : 'var(--text)';
             
-            document.getElementById('hand-display').innerHTML = 
-                `<span style="color:${getSuitColor(state.c1.s)}">${getRankName(state.c1.r)}${getSuitIcon(state.c1.s)}</span> ` +
-                `<span style="color:${getSuitColor(state.c2.s)}">${getRankName(state.c2.r)}${getSuitIcon(state.c2.s)}</span>`;
+            // Гар харуулах
+            document.getElementById('my-hole-cards').innerHTML = 
+                `<div class="mini-card" style="color:${getSuitColor(state.c1.s)}">${getRankName(state.c1.r)}${getSuitIcon(state.c1.s)}</div>` +
+                `<div class="mini-card" style="color:${getSuitColor(state.c2.s)}">${getRankName(state.c2.r)}${getSuitIcon(state.c2.s)}</div>`;
+
+            // Флоп мод харуулах
+            document.getElementById('flop-cards').innerHTML = sampleBoard.map(c => 
+                `<div class="mini-card" style="color:${getSuitColor(c.s)}">${getRankName(c.r)}${getSuitIcon(c.s)}</div>`
+            ).join('');
 
             let pWin = ((wins / iters) * 100).toFixed(1);
             let pTie = ((ties / iters) * 100).toFixed(1);
@@ -269,27 +279,33 @@
             document.getElementById('txt-tie').innerText = pTie + '%';
             document.getElementById('txt-loss').innerText = pLoss + '%';
 
-            // Check / Bet / Fold стратеги болон "Газар сөхөгдсөн мод" логик нэмэх нь
-            let advice = "";
-            let winNum = parseFloat(pWin);
-            let isPair = (state.c1.r === state.c2.r);
-            let isHighCard = (state.c1.r >= 12 || state.c2.r >= 12);
+            // "Газар сөхөгдсөн мод" болон Check, Bet, Fold логик модулийг дүгнэх
+            let isPocketPair = (state.c1.r === state.c2.r);
+            let modTitle = "";
+            let modDesc = "";
 
-            if (isPair) {
-                advice = `🔥 <strong>Газар сөхөгдсөн мод (Set/Pair):</strong> Та хос картаар эхэлж байна! Флоп (Flop) дээр гурвалсан карт (Set) болох өндөр магадлалтай. Маш сайн гар тул <strong>Bet</strong> хийж бооцоог өсгөх эсвэл өрсөлдөгчөө шахах хэрэгтэй.`;
-            } else if (winNum > 55) {
-                advice = `💪 Хожих магадлал өндөр байна. Сайн картууд тул санаачилгыг гартаа авч <strong>Bet</strong> хийж тоглоорой.`;
-            } else if (winNum >= 40 && winNum <= 55) {
-                advice = `⚖️ Тэнцүүхэн боломж байна. Хэрэв өрсөлдөгч том бооцоо тавиагүй бол <strong>Check</strong> хийж дараагийн картыг харах нь зүйтэй.`;
+            // Шалгах: Флоп дээр мод (Set) эсвэл хос үүссэн эсэх
+            let hitSet = sampleBoard.some(c => c.r === state.c1.r);
+
+            if (isPocketPair && hitSet) {
+                modTitle = "🔥 Газар сөхөгдсөн мод (Flopped Set)!";
+                modDesc = "Таны гарт байсан хос карт флоп дээрх карттай таарч маш хүчтэй гурвалсан мод (Set) үүслээ! Энэ үед маш агрессив байдлаар <strong>Bet</strong> хийж мөнгө өсгөх эсвэл өрсөлдөгчөө шахах хэрэгтэй.";
+            } else if (isPocketPair) {
+                modTitle = "⚡ Pocket Pair (Халаасны хос)";
+                modDesc = "Та хос картаар эхэлсэн байна. Флоп дээр мод сөхөгдөх боломж бий. Өрсөлдөгчийн үйлдэл сул байвал <strong>Bet</strong> хийж санаачилга гартаа ав, хэрэв том бооцоо ирвэл болгоомжтой бай.";
+            } else if (parseFloat(pWin) > 60) {
+                modTitle = "💪 Давуу талтай гар (Strong Hand)";
+                modDesc = "Таны хожих магадлал өндөр байна. Тоглоомыг хянаж <strong>Bet</strong> хийх эсвэл өрсөлдөгчийн бооцоог дэмжинэ үү.";
+            } else if (parseFloat(pWin) >= 40) {
+                modTitle = "⚖️ Тэнцүү боломж (Marginal Hand)";
+                modDesc = "Боломжийн магадлалтай байна. Илүү зардал гаргахгүйн тулд <strong>Check</strong> хийж дараагийн картыг харах нь зүйтэй.";
             } else {
-                if (isHighCard) {
-                    advice = `⚠️ Магадлал бага ч өндөр хөзөртэй (High card) байна. Өрсөлдөгч сул байвал bluff хийж болох ч болгоомжтой байж <strong>Check</strong> эсвэл хүнд үед <strong>Fold</strong> хийхэд бэлэн бай.`;
-                } else {
-                    advice = `❌ Магадлал болон хөзрийн чанар сул байна. Эрсдэл хүлээхгүйн тулд <strong>Fold</strong> хийсэн нь дээр.`;
-                }
+                modTitle = "⚠️ Сул гар (Weak Hand / Fold)";
+                modDesc = "Магадлал болон картын чанар хангалтгүй байна. Эрсдэл хүлээхгүйн тулд шууд <strong>Fold</strong> хийж дараагийн гарыг хүлээсэн нь дээр.";
             }
 
-            document.getElementById('advice-text').innerHTML = advice;
+            document.getElementById('mod-title').innerHTML = modTitle;
+            document.getElementById('mod-desc').innerHTML = modDesc;
 
             showStep(6);
 
@@ -302,139 +318,5 @@
 
         initUI();
     </script>
-</body>
-</html>
-    b.className="rank";
-    b.textContent=r;
-    b.addEventListener("click",function(e){
-      e.preventDefault();
-      if(num===1) chooseRank1(r); else chooseRank2(r);
-    });
-    box.appendChild(b);
-  });
-}
-
-makeRanks("ranks1",1);
-makeRanks("ranks2",2);
-
-document.querySelectorAll(".suit").forEach(b=>{
-  b.addEventListener("click",function(e){
-    e.preventDefault();
-    const step=this.getAttribute("data-step");
-    const suit=this.getAttribute("data-suit");
-    if(step==="1"){
-      firstSuit=suit;
-      showScreen("screenRank1");
-    }else{
-      secondSuit=suit;
-      document.getElementById("card2").innerHTML=cardHTML(hand[0]);
-      showScreen("screenRank2");
-    }
-  });
-});
-
-function chooseRank1(r){
-  hand=[{r:r,s:firstSuit}];
-  document.getElementById("card1").innerHTML=cardHTML(hand[0]);
-  showScreen("screenSuit2");
-}
-
-function chooseRank2(r){
-  if(hand.length!==1) return;
-  const c={r:r,s:secondSuit};
-  if(c.r===hand[0].r && c.s===hand[0].s) return; // Ижил карт давхардаж орохоос сэргийлэх
-  hand.push(c);
-  document.getElementById("finalCards").innerHTML=cardHTML(hand[0])+cardHTML(hand[1]);
-  showScreen("screenResult");
-  setTimeout(calculate,30);
-}
-
-function cardHTML(c){
-  if(!c) return "";
-  const red=(c.s==="♥"||c.s==="♦")?" red":"";
-  return '<div class="card'+red+'"><div class="cr">'+c.r+'</div><div class="cs">'+c.s+'</div></div>';
-}
-
-document.querySelectorAll(".back").forEach(b=>{
-  b.addEventListener("click",function(){
-    const to=this.getAttribute("data-back");
-    if(to==="reset"){hand=[];firstSuit="";secondSuit="";showScreen("screenSuit1");}
-    else if(to==="suit1") showScreen("screenSuit1");
-    else if(to==="rank1") showScreen("screenRank1");
-    else if(to==="suit2") showScreen("screenSuit2");
-  });
-});
-
-function value(r){return r==="A"?14:r==="K"?13:r==="Q"?12:r==="J"?11:Number(r)}
-
-function evaluate(cards){
-  const count={};
-  cards.forEach(c=>count[c.r]=(count[c.r]||0)+1);
-  const groups=Object.keys(count).map(r=>({v:value(r),n:count[r]})).sort((a,b)=>b.n-a.n||b.v-a.v);
-  function straight(arr){
-    let u=[...new Set(arr.map(value))].sort((a,b)=>b-a);
-    if(u.includes(14)) u.push(1);
-    for(let i=0;i<=u.length-5;i++) if(u[i]-u[i+4]===4) return u[i];
-    return 0;
-  }
-  for(const s of ["♠","♥","♣","♦"]){
-    const f=cards.filter(c=>c.s===s);
-    if(f.length>=5){const st=straight(f);if(st) return [8,st];}
-  }
-  const q=groups.find(x=>x.n===4);
-  if(q) return [7,q.v,...groups.filter(x=>x.v!==q.v).map(x=>x.v)];
-  const tr=groups.filter(x=>x.n>=3), pairs=groups.filter(x=>x.n>=2);
-  if(tr.length>=2) return [6,tr[0].v,tr[1].v];
-  if(tr.length&&pairs.some(x=>x.v!==tr[0].v)) return [6,tr[0].v,pairs.find(x=>x.v!==tr[0].v).v];
-  for(const s of ["♠","♥","♣","♦"]){
-    const f=cards.filter(c=>c.s===s);
-    if(f.length>=5) return [5,...f.map(c=>value(c.r)).sort((a,b)=>b-a).slice(0,5)];
-  }
-  const st=straight(cards); if(st) return [4,st];
-  if(tr.length) return [3,tr[0].v,...groups.filter(x=>x.v!==tr[0].v).map(x=>x.v).slice(0,2)];
-  const p=groups.filter(x=>x.n===2);
-  if(p.length>=2) return [2,p[0].v,p[1].v,...groups.filter(x=>x.n===1).map(x=>x.v).slice(0,1)];
-  if(p.length) return [1,p[0].v,...groups.filter(x=>x.v!==p[0].v).map(x=>x.v).slice(0,3)];
-  return [0,...groups.map(x=>x.v).slice(0,5)];
-}
-
-function compare(a,b){
-  for(let i=0;i<Math.max(a.length,b.length);i++){
-    const x=a[i]||0,y=b[i]||0;
-    if(x!==y) return x>y?1:-1;
-  }
-  return 0;
-}
-
-function calculate(){
-  const suits=["♠","♥","♣","♦"];
-  const deck=[];
-  for(const r of RANKS) for(const s of suits) deck.push({r,s});
-  const known=new Set(hand.map(c=>c.r+c.s));
-  const available=deck.filter(c=>!known.has(c.r+c.s));
-  let win=0,tie=0,lose=0;
-  const N=25000;
-
-  for(let n=0;n<N;n++){
-    const pool=available.slice();
-    const draw=[];
-    for(let k=0;k<7;k++){
-      const idx=Math.floor(Math.random()*pool.length);
-      draw.push(pool.splice(idx,1)[0]);
-    }
-    const opp=draw.slice(0,2),board=draw.slice(2);
-    const z=compare(evaluate(hand.concat(board)),evaluate(opp.concat(board)));
-    if(z>0) win++; else if(z<0) lose++; else tie++;
-  }
-  const W=win/N*100, T=tie/N*100, L=lose/N*100;
-  document.getElementById("big").textContent=W.toFixed(1)+"%";
-  document.getElementById("wp").textContent=W.toFixed(1)+"%";
-  document.getElementById("tp").textContent=T.toFixed(1)+"%";
-  document.getElementById("lp").textContent=L.toFixed(1)+"%";
-  document.getElementById("wf").style.width=W+"%";
-  document.getElementById("tf").style.width=T+"%";
-  document.getElementById("lf").style.width=L+"%";
-}
-</script>
 </body>
 </html>
