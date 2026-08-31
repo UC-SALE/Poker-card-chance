@@ -53,7 +53,8 @@
         .module-header { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: var(--primary); display: flex; align-items: center; gap: 6px; }
         .module-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
-        .btn-restart { background: var(--primary); color: #000; border: none; font-size: 16px; padding: 16px 20px; width: 100%; max-width: 400px; font-weight: bold; border-radius: 14px; cursor: pointer; margin-bottom: 20px; }
+        .btn-restart { background: var(--primary); color: #000; border: none; font-size: 16px; padding: 16px 20px; width: 100%; max-width: 400px; font-weight: bold; border-radius: 14px; cursor: pointer; margin-bottom: 12px; }
+        .btn-secondary { background: #333; color: var(--text); border: 2px solid #444; font-size: 16px; padding: 16px 20px; width: 100%; max-width: 400px; font-weight: bold; border-radius: 14px; cursor: pointer; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -82,12 +83,38 @@
         <div class="grid-ranks" id="ranks2"></div>
     </div>
 
-    <!-- СОНГОЛТ: Флоп оруулах эсвэл шууд Pre-flop шинжлэх -->
-    <div id="stepChoice" class="screen">
-        <h2>Тоглоомын үе шат</h2>
-        <p class="subtitle">Та гартаа байгаа 2 карткаа орууллаа. Цаашид юу хийх вэ?</p>
-        <button class="btn-restart" style="margin-bottom:12px;" onclick="skipToPreFlopResult()">Зөвхөн 2 картаар (Pre-flop) дүгнэлт авах</button>
-        <button class="btn-restart" style="background:var(--surface); color:var(--text); border:2px solid #444;" onclick="startFlopInputFlow()">Газар сөхөгдсөн мод (Flop) оруулах</button>
+    <!-- Тооцоолж байна -->
+    <div id="stepCalc" class="screen">
+        <h2>Тооцоолж байна...</h2>
+        <p class="subtitle">Симуляци хийж байна</p>
+        <div class="loader"></div>
+    </div>
+
+    <!-- Pre-flop Үр дүн ба Detail -->
+    <div id="stepPreFlopResult" class="screen">
+        <h2>Pre-flop Үр дүн</h2><p class="subtitle">Гарааны картын дэлгэрэнгүй (Detail)</p>
+        
+        <div class="result-card">
+            <div class="section-title">Таны гарт байгаа 2 карт</div>
+            <div class="cards-row" id="pre-my-hole-cards"></div>
+
+            <div class="stat-row">
+                <div class="stat-labels"><span>Хожих боломж</span><span id="pre-txt-win" style="color: var(--win)">0%</span></div>
+                <div class="bar-bg"><div class="bar-fill" id="pre-bar-win" style="background: var(--win);"></div></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-labels"><span>Тэнцэх боломж</span><span id="pre-txt-tie" style="color: var(--tie)">0%</span></div>
+                <div class="bar-bg"><div class="bar-fill" id="pre-bar-tie" style="background: var(--tie);"></div></div>
+            </div>
+        </div>
+
+        <div class="module-box" id="pre-mod-container">
+            <div class="module-header" id="pre-mod-title">♠️ Pre-flop Стратеги</div>
+            <div class="module-desc" id="pre-mod-desc">Мэдээлэл боловсруулж байна...</div>
+        </div>
+
+        <button class="btn-restart" onclick="startFlopInputFlow()">Флоп нэмэх цэс рүү орох (Flop-оо оруулах)</button>
+        <button class="btn-secondary" onclick="resetApp()">Шинээр эхлэх</button>
     </div>
 
     <!-- ФЛОП СӨХӨГДӨХ 3 КАРТЫГ ГАРААС ОРУУЛАХ ЦЭС -->
@@ -104,44 +131,37 @@
         <div class="grid-ranks" id="flopRanks"></div>
     </div>
 
-    <!-- Тооцоолж байна -->
-    <div id="stepCalc" class="screen">
-        <h2>Тооцоолж байна...</h2>
-        <p class="subtitle">Симуляци хийж байна</p>
-        <div class="loader"></div>
-    </div>
-
-    <!-- Үр дүн -->
-    <div id="stepResult" class="screen">
-        <h2>Үр дүн ба Стратеги</h2><p class="subtitle">Тоглоомын зөвлөмж</p>
+    <!-- Post-flop (Flop) Үр дүн -->
+    <div id="stepFlopResult" class="screen">
+        <h2>Flop Үр дүн</h2><p class="subtitle">Флоп модны дэлгэрэнгүй тооцоолол</p>
         
         <div class="result-card">
             <div class="section-title">Таны гар</div>
-            <div class="cards-row" id="my-hole-cards"></div>
+            <div class="cards-row" id="flop-my-hole-cards"></div>
             
-            <div class="section-title" id="board-title-label">Мод (Board)</div>
+            <div class="section-title">Газар сөхөгдсөн мод (Flop Board)</div>
             <div class="cards-row" id="flop-cards-result"></div>
 
             <div class="stat-row">
-                <div class="stat-labels"><span>Хожих магадлал</span><span id="txt-win" style="color: var(--win)">0%</span></div>
-                <div class="bar-bg"><div class="bar-fill" id="bar-win" style="background: var(--win);"></div></div>
+                <div class="stat-labels"><span>Хожих магадлал</span><span id="flop-txt-win" style="color: var(--win)">0%</span></div>
+                <div class="bar-bg"><div class="bar-fill" id="flop-bar-win" style="background: var(--win);"></div></div>
             </div>
             <div class="stat-row">
-                <div class="stat-labels"><span>Тэнцэх магадлал</span><span id="txt-tie" style="color: var(--tie)">0%</span></div>
-                <div class="bar-bg"><div class="bar-fill" id="bar-tie" style="background: var(--tie);"></div></div>
+                <div class="stat-labels"><span>Тэнцэх магадлал</span><span id="flop-txt-tie" style="color: var(--tie)">0%</span></div>
+                <div class="bar-bg"><div class="bar-fill" id="flop-bar-tie" style="background: var(--tie);"></div></div>
             </div>
             <div class="stat-row">
-                <div class="stat-labels"><span>Хожигдох магадлал</span><span id="txt-loss" style="color: var(--loss)">0%</span></div>
-                <div class="bar-bg"><div class="bar-fill" id="bar-loss" style="background: var(--loss);"></div></div>
+                <div class="stat-labels"><span>Хожигдох магадлал</span><span id="flop-txt-loss" style="color: var(--loss)">0%</span></div>
+                <div class="bar-bg"><div class="bar-fill" id="flop-bar-loss" style="background: var(--loss);"></div></div>
             </div>
         </div>
 
-        <div class="module-box" id="flopped-mod-container">
-            <div class="module-header" id="mod-title">♠️ Стратегийн зөвлөмж</div>
-            <div class="module-desc" id="mod-desc">Мэдээлэл боловсруулж байна...</div>
+        <div class="module-box">
+            <div class="module-header" id="flop-mod-title">🔥 Flop Стратеги</div>
+            <div class="module-desc" id="flop-mod-desc">Мэдээлэл боловсруулж байна...</div>
         </div>
 
-        <button class="btn-restart" onclick="resetApp()">Дахин эхлэх</button>
+        <button class="btn-restart" onclick="resetApp()">Шинээр эхлэх</button>
     </div>
 
     <script>
@@ -159,8 +179,7 @@
             c1: { s: null, r: null }, 
             c2: { s: null, r: null },
             flop: [],
-            tempSuit: null,
-            isPreFlopOnly: false
+            tempSuit: null
         };
 
         function initUI() {
@@ -192,18 +211,13 @@
                 }
                 state.c2.r = r;
                 state.flop = [];
-                showScreen('stepChoice');
+                // 2 карт сонгогдмцц Pre-flop тооцоолол хийж Detail харуулна
+                showScreen('stepCalc');
+                setTimeout(runPreFlopSimulation, 50);
             }
         }
 
-        function skipToPreFlopResult() {
-            state.isPreFlopOnly = true;
-            showScreen('stepCalc');
-            setTimeout(runSimulation, 50);
-        }
-
         function startFlopInputFlow() {
-            state.isPreFlopOnly = false;
             startFlopInput();
         }
 
@@ -241,7 +255,7 @@
                 startFlopInput();
             } else {
                 showScreen('stepCalc');
-                setTimeout(runSimulation, 50);
+                setTimeout(runFlopSimulation, 50);
             }
         }
 
@@ -255,10 +269,9 @@
         }
 
         function resetApp() {
-            state = { c1: { s: null, r: null }, c2: { s: null, r: null }, flop: [], tempSuit: null, isPreFlopOnly: false };
-            document.getElementById('bar-win').style.width = '0%';
-            document.getElementById('bar-tie').style.width = '0%';
-            document.getElementById('bar-loss').style.width = '0%';
+            state = { c1: { s: null, r: null }, c2: { s: null, r: null }, flop: [], tempSuit: null };
+            document.getElementById('pre-bar-win').style.width = '0%';
+            document.getElementById('pre-bar-tie').style.width = '0%';
             showScreen('step1');
         }
 
@@ -318,7 +331,87 @@
             return 0;
         }
 
-        function runSimulation() {
+        // 1. PRE-FLOP ТООЦООЛОЛ БА STRATEGY
+        function runPreFlopSimulation() {
+            let deck = [];
+            for (let s = 0; s < 4; s++) {
+                for (let r = 2; r <= 14; r++) {
+                    if ((s === state.c1.s && r === state.c1.r) || (s === state.c2.s && r === state.c2.r)) continue;
+                    deck.push({ s, r });
+                }
+            }
+
+            let wins = 0, ties = 0;
+            const iters = 1000;
+            
+            for (let i = 0; i < iters; i++) {
+                for (let j = deck.length - 1; j > 0; j--) {
+                    const k = Math.floor(Math.random() * (j + 1));
+                    [deck[j], deck[k]] = [deck[k], deck[j]];
+                }
+                
+                let fullBoard = [deck[0], deck[1], deck[2], deck[3], deck[4]];
+                let opp = [deck[5], deck[6]];
+
+                let myScore = evaluateHand([state.c1, state.c2, ...fullBoard]);
+                let oppScore = evaluateHand([...opp, ...fullBoard]);
+                let res = compare(myScore, oppScore);
+                
+                if (res === 1) wins++;
+                else if (res === 0) ties++;
+            }
+
+            const getRankName = r => ranks.find(x => x.r === r).n;
+            const getSuitIcon = s => suits.find(x => x.s === s).icon;
+            const getSuitColor = s => suits.find(x => x.s === s).color === 'red' ? 'var(--red-suit)' : 'var(--text)';
+            
+            document.getElementById('pre-my-hole-cards').innerHTML = 
+                `<div class="mini-card" style="color:${getSuitColor(state.c1.s)}">${getRankName(state.c1.r)}${getSuitIcon(state.c1.s)}</div>` +
+                `<div class="mini-card" style="color:${getSuitColor(state.c2.s)}">${getRankName(state.c2.r)}${getSuitIcon(state.c2.s)}</div>`;
+
+            let pWin = ((wins / iters) * 100).toFixed(1);
+            let pTie = ((ties / iters) * 100).toFixed(1);
+
+            document.getElementById('pre-txt-win').innerText = pWin + '%';
+            document.getElementById('pre-txt-tie').innerText = pTie + '%';
+
+            let r1 = state.c1.r, r2 = state.c2.r;
+            let isPair = (r1 === r2);
+            let isHigh = (r1 >= 12 || r2 >= 12);
+            let isConnected = Math.abs(r1 - r2) <= 2;
+            let modTitle = "";
+            let modDesc = "";
+
+            if (isPair && r1 >= 10) {
+                modTitle = "🚀 Өндөр хос -> RAISE (Бооцоо өсгөх)";
+                modDesc = "Таны гарт хүчирхэг хос (AA, KK, QQ, JJ, 1010) байна. Энэ бол маш давуу гар тул өрсөлдөгчдөө дарамт үзүүлж <strong>RAISE</strong> хийх буюу бооцоог өсгөх нь зөв.";
+            } else if (isPair) {
+                modTitle = "⚖️ Дунд/Бага хос -> CHECK / CALL";
+                modDesc = "Флоп дээр Set (3 дахь карт) хайх зорилгоор жижиг бооцоог дагаж <strong>CALL</strong> хийх эсвэл үнэгүй карт харахын тулд <strong>CHECK</strong> хийх боломжтой.";
+            } else if (isHigh && state.c1.s === state.c2.s) {
+                modTitle = "💪 Өндөр карт & Масть -> RAISE / CALL";
+                modDesc = "Flush болон Straight хийх боломж өндөртэй сайн гар. Тоглоомыг идэвхтэй эхлүүлж <strong>RAISE</strong> эсвэл <strong>CALL</strong> хийнэ.";
+            } else if (isHigh || isConnected) {
+                modTitle = "⚖️ Боломжийн гар -> CHECK / CALL";
+                modDesc = "Дундаж карт байна. Хэрэв өрсөлдөгч хэт их мөнгө нэхээгүй бол <strong>CALL</strong> хийж флоп харах боломжтой.";
+            } else {
+                modTitle = "⚠️ Сул гар -> FOLD (Хаях)";
+                modDesc = "Картууд хоорондоо холбоогүй, утга багатай тул эрсдэл гаргалгүй шууд <strong>FOLD</strong> хийж дараагийн тоглоом хүлээх нь оновчтой.";
+            }
+
+            document.getElementById('pre-mod-title').innerHTML = modTitle;
+            document.getElementById('pre-mod-desc').innerHTML = modDesc;
+
+            showScreen('stepPreFlopResult');
+
+            setTimeout(() => {
+                document.getElementById('pre-bar-win').style.width = pWin + '%';
+                document.getElementById('pre-bar-tie').style.width = pTie + '%';
+            }, 50);
+        }
+
+        // 2. FLOP ТООЦООЛОЛ БА STRATEGY
+        function runFlopSimulation() {
             let deck = [];
             for (let s = 0; s < 4; s++) {
                 for (let r = 2; r <= 14; r++) {
@@ -338,16 +431,8 @@
                     [deck[j], deck[k]] = [deck[k], deck[j]];
                 }
                 
-                let fullBoard = [];
-                let opp = [];
-
-                if (state.isPreFlopOnly) {
-                    fullBoard = [deck[0], deck[1], deck[2], deck[3], deck[4]];
-                    opp = [deck[5], deck[6]];
-                } else {
-                    fullBoard = [...state.flop, deck[0], deck[1]];
-                    opp = [deck[2], deck[3]];
-                }
+                let fullBoard = [...state.flop, deck[0], deck[1]];
+                let opp = [deck[2], deck[3]];
 
                 let myScore = evaluateHand([state.c1, state.c2, ...fullBoard]);
                 let oppScore = evaluateHand([...opp, ...fullBoard]);
@@ -362,45 +447,54 @@
             const getSuitIcon = s => suits.find(x => x.s === s).icon;
             const getSuitColor = s => suits.find(x => x.s === s).color === 'red' ? 'var(--red-suit)' : 'var(--text)';
             
-            document.getElementById('my-hole-cards').innerHTML = 
+            document.getElementById('flop-my-hole-cards').innerHTML = 
                 `<div class="mini-card" style="color:${getSuitColor(state.c1.s)}">${getRankName(state.c1.r)}${getSuitIcon(state.c1.s)}</div>` +
                 `<div class="mini-card" style="color:${getSuitColor(state.c2.s)}">${getRankName(state.c2.r)}${getSuitIcon(state.c2.s)}</div>`;
 
-            if (state.isPreFlopOnly) {
-                document.getElementById('board-title-label').style.display = 'none';
-                document.getElementById('flop-cards-result').style.display = 'none';
-            } else {
-                document.getElementById('board-title-label').style.display = 'block';
-                document.getElementById('flop-cards-result').style.display = 'flex';
-                document.getElementById('flop-cards-result').innerHTML = state.flop.map(c => 
-                    `<div class="mini-card" style="color:${getSuitColor(c.s)}">${getRankName(c.r)}${getSuitIcon(c.s)}</div>`
-                ).join('');
-            }
+            document.getElementById('flop-cards-result').innerHTML = state.flop.map(c => 
+                `<div class="mini-card" style="color:${getSuitColor(c.s)}">${getRankName(c.r)}${getSuitIcon(c.s)}</div>`
+            ).join('');
 
             let pWin = ((wins / iters) * 100).toFixed(1);
             let pTie = ((ties / iters) * 100).toFixed(1);
             let pLoss = ((losses / iters) * 100).toFixed(1);
 
-            document.getElementById('txt-win').innerText = pWin + '%';
-            document.getElementById('txt-tie').innerText = pTie + '%';
-            document.getElementById('txt-loss').innerText = pLoss + '%';
+            document.getElementById('flop-txt-win').innerText = pWin + '%';
+            document.getElementById('flop-txt-tie').innerText = pTie + '%';
+            document.getElementById('flop-txt-loss').innerText = pLoss + '%';
 
+            let isPocketPair = (state.c1.r === state.c2.r);
+            let hitSet = state.flop.some(c => c.r === state.c1.r);
             let modTitle = "";
             let modDesc = "";
 
-            if (state.isPreFlopOnly) {
-                let r1 = state.c1.r, r2 = state.c2.r;
-                let isPair = (r1 === r2);
-                let isHighCard = (r1 >= 12 || r2 >= 12);
-                let isConnected = Math.abs(r1 - r2) <= 2;
-                let isSuited = (state.c1.s === state.c2.s);
+            if (isPocketPair && hitSet) {
+                modTitle = "🔥 Set үүслээ -> BET / RAISE (Өсгөх)";
+                modDesc = "Таны халаасны хос флоп модтой таарч Set боллоо! Энэ бол маш хүчтэй тул санаачилгыг авч <strong>BET</strong> эсвэл <strong>RAISE</strong> хийж мөнгө өсгөөрэй.";
+            } else if (parseFloat(pWin) > 65) {
+                modTitle = "💪 Давуу байдал -> BET / RAISE";
+                modDesc = "Таны гар флоп дээр давуу байрлалтай байна. Өрсөлдөгчөө шахаж <strong>BET</strong> хийхэд тохиромжтой.";
+            } else if (parseFloat(pWin) >= 40) {
+                modTitle = "⚖️ Дунд зэргийн боломж -> CHECK / CALL";
+                modDesc = "Боломжийн магадлалтай байна. Илүү их эрсдэл гаргахгүйн тулд <strong>CHECK</strong> хийж дараагийн карт (Turn) харахыг хичээ.";
+            } else {
+                modTitle = "⚠️ Сул байрлал -> FOLD (Хаях)";
+                modDesc = "Энэхүү флоп дээр ашигтай холбоо үүссэнгүй. Цаашид алдагдал хүлээхгүйн тулд шууд <strong>FOLD</strong> хийх нь зөв.";
+            }
 
-                if (isPair && r1 >= 10) {
-                    modTitle = "🚀 Өндөр хос (Premium Pair) -> RAISE";
-                    modDesc = "Таны гарт хүчирхэг хос (AA, KK, QQ, JJ, 1010) байна. Энэ бол маш сайн гар тул өрсөлдөгчдөө дарамт үзүүлж <strong>RAISE</strong> хийх буюу бооцоог өсгөх нь хамгийн ашигтай.";
-                } else if (isPair) {
-                    modTitle = "⚖️ Дунд болон бага хос -> CHECK / CALL";
-                    modDesc = "Дунд эсвэл бага зэргийн хос байна. Флоп дээр Set (3 дахь карт таарах) олох зорилгоор сул бооцоог дагаж <strong>CALL</strong> хийх эсвэл үнэгүй карт харахын тулд <strong>CHECK</strong> хийх боломжтой.";
-                } else if (isHighCard && isSuited) {
-                    modTitle = "💪 Өндөр карт болон нэг масть -> RAISE / CALL";
-                    modDesc = "Хоёр өндөр карт нэг масть таарсан нь Flush болон Straight х
+            document.getElementById('flop-mod-title').innerHTML = modTitle;
+            document.getElementById('flop-mod-desc').innerHTML = modDesc;
+
+            showScreen('stepFlopResult');
+
+            setTimeout(() => {
+                document.getElementById('flop-bar-win').style.width = pWin + '%';
+                document.getElementById('flop-bar-tie').style.width = pTie + '%';
+                document.getElementById('flop-bar-loss').style.width = pLoss + '%';
+            }, 50);
+        }
+
+        initUI();
+    </script>
+</body>
+</html>
