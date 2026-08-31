@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06140d">
+<title>Poker Odds</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#06140d;color:white}
+.screen{height:100dvh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;max-width:600px;margin:auto;background:radial-gradient(circle at 50% 15%,#245f3d,#0b2d1d 45%,#06140d 100%)}
+.title{position:absolute;top:calc(env(safe-area-inset-top) + 22px);font-size:25px;font-weight:900;letter-spacing:1px}
+.instruction{position:absolute;top:calc(env(safe-area-inset-top) + 66px);font-size:14px;color:#a9c7b6}
+.suit-grid{width:min(90vw,460px);display:grid;grid-template-columns:1fr 1fr;gap:18px}
+button{border:0;cursor:pointer}
+.suit-btn{height:min(34vw,190px);min-height:130px;border-radius:24px;background:#fff;color:#111;font-size:clamp(70px,20vw,115px);box-shadow:0 12px 30px #0009}
+.suit-btn.red{color:#d62435}
+.rank-grid{width:min(92vw,500px);display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.rank-btn{height:clamp(60px,15vw,90px);border-radius:17px;background:#16452d;color:#fff;font-size:clamp(22px,7vw,36px);font-weight:900;box-shadow:0 5px 13px #0005}
+.rank-btn:active,.suit-btn:active{transform:scale(.95)}
+.back{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 18px);background:#ffffff16;color:#c5d9cd;border:1px solid #ffffff20;border-radius:13px;padding:11px 22px;font-size:15px}
+.card-row{display:flex;gap:14px;margin-bottom:24px}
+.card{width:110px;height:150px;border-radius:17px;background:white;color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 28px #0009}
+.card.red{color:#d62435}.cr{font-size:36px;font-weight:950}.cs{font-size:47px}
+.result{text-align:center;width:min(90vw,430px);background:#071b11;border:1px solid #2d704a;border-radius:24px;padding:25px}
+.percent{font-size:68px;font-weight:950;color:#6df2a0}.small{color:#9fb8aa;font-size:13px}
+.stats{margin-top:18px;text-align:left}.line{margin:10px 0}.top{display:flex;justify-content:space-between;font-size:13px}.bar{height:8px;background:#ffffff14;border-radius:10px;margin-top:5px;overflow:hidden}.fill{height:100%;background:#54dc8b}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<section id="suit1" class="screen">
+<div class="title">♠ POKER ODDS</div>
+<div class="instruction">1-р картын масть</div>
+<div class="suit-grid">
+<button class="suit-btn" onclick="chooseSuit(1,'♠')">♠</button>
+<button class="suit-btn red" onclick="chooseSuit(1,'♥')">♥</button>
+<button class="suit-btn" onclick="chooseSuit(1,'♣')">♣</button>
+<button class="suit-btn red" onclick="chooseSuit(1,'♦')">♦</button>
+</div>
+</section>
+
+<section id="rank1" class="screen hidden">
+<div class="title">1-Р КАРТ</div>
+<div class="instruction">Тоог / дүрсийг сонго</div>
+<div class="rank-grid" id="ranks1"></div>
+<button class="back" onclick="back(1)">← Буцах</button>
+</section>
+
+<section id="suit2" class="screen hidden">
+<div class="title">♠ POKER ODDS</div>
+<div class="instruction">2-р картын масть</div>
+<div class="card-row" id="firstCard"></div>
+<div class="suit-grid">
+<button class="suit-btn" onclick="chooseSuit(2,'♠')">♠</button>
+<button class="suit-btn red" onclick="chooseSuit(2,'♥')">♥</button>
+<button class="suit-btn" onclick="chooseSuit(2,'♣')">♣</button>
+<button class="suit-btn red" onclick="chooseSuit(2,'♦')">♦</button>
+</div>
+<button class="back" onclick="back(2)">← Буцах</button>
+</section>
+
+<section id="rank2" class="screen hidden">
+<div class="title">2-Р КАРТ</div>
+<div class="instruction">Тоог / дүрсийг сонго</div>
+<div class="card-row" id="twoCards"></div>
+<div class="rank-grid" id="ranks2"></div>
+<button class="back" onclick="back(3)">← Буцах</button>
+</section>
+
+<section id="result" class="screen hidden">
+<div class="title">♠ POKER ODDS</div>
+<div class="card-row" id="resultCards"></div>
+<div class="result">
+<div class="percent" id="win">0%</div>
+<div class="small">WIN PROBABILITY</div>
+<div class="stats">
+<div class="line"><div class="top"><span>Win</span><b id="wp">0%</b></div><div class="bar"><div class="fill" id="wf"></div></div></div>
+<div class="line"><div class="top"><span>Tie</span><b id="tp">0%</b></div><div class="bar"><div class="fill" id="tf"></div></div></div>
+<div class="line"><div class="top"><span>Lose</span><b id="lp">0%</b></div><div class="bar"><div class="fill" id="lf"></div></div></div>
+</div>
+</div>
+<button class="back" onclick="reset()">↺ Дахин сонгох</button>
+</section>
+
+<script>
+const ranks=["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
+const suits=["♠","♥","♣","♦"];
+let hand=[],currentSuit="";
+
+function makeRanks(id,cardNo){
+ const box=document.getElementById(id);
+ ranks.forEach(r=>{
+  const b=document.createElement("button");
+  b.className="rank-btn";b.textContent=r;
+  b.onclick=()=>chooseRank(cardNo,r);
+  box.appendChild(b);
+ });
+}
+makeRanks("ranks1",1);makeRanks("ranks2",2);
+
+function show(id){
+ document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));
+ document.getElementById(id).classList.remove("hidden");
+}
+function chooseSuit(n,s){
+ currentSuit=s;
+ show(n===1?"rank1":"rank2");
+}
+function chooseRank(n,r){
+ const c={r:r,s:currentSuit};
+ if(n===1){
+  hand=[c];currentSuit="";render("firstCard",hand);show("suit2");
+ }else{
+  if(hand[0].r===r && hand[0].s===currentSuit)return;
+  hand.push(c);currentSuit="";render("twoCards",hand);show("result");calculate();
+ }
+}
+function render(id,cards){
+ const box=document.getElementById(id);box.innerHTML="";
+ cards.forEach(c=>{
+  const d=document.createElement("div");
+  d.className="card "+((c.s==="♥"||c.s==="♦")?"red":"");
+  d.innerHTML='<div class="cr">'+c.r+'</div><div class="cs">'+c.s+'</div>';
+  box.appendChild(d);
+ });
+}
+function reset(){hand=[];currentSuit="";show("suit1")}
+
+function back(n){
+ if(n===1)show("suit1");
+ else if(n===2)show("rank1");
+ else if(n===3){hand.pop();show("suit2")}
+}
+
+/* Poker hand evaluator */
+function val(r){return r==="A"?14:r==="K"?13:r==="Q"?12:r==="J"?11:+r}
+function score(cs){
+ let cnt={};cs.forEach(c=>cnt[c.r]=(cnt[c.r]||0)+1);
+ let g=Object.entries(cnt).map(([r,n])=>({v:val(r),n})).sort((a,b)=>b.n-a.n||b.v-a.v);
+ function straight(arr){
+  let u=[...new Set(arr.map(c=>val(c)))].sort((a,b)=>b-a);
+  if(u.includes(14))u.push(1);
+  for(let i=0;i<=u.length-5;i++)if(u[i]-u[i+4]===4)return u[i];
+  return 0;
+ }
+ for(const s of suits){
+  let f=cs.filter(c=>c.s===s);
+  if(f.length>=5){let st=straight(f);if(st)return[8,st]}
+ }
+ let q=g.find(x=>x.n===4);if(q)return[7,q.v,...g.filter(x=>x.v!==q.v).map(x=>x.v)];
+ let tr=g.filter(x=>x.n>=3),pa=g.filter(x=>x.n>=2);
+ if(tr.length>=2)return[6,tr[0].v,tr[1].v];
+ if(tr.length&&pa.some(x=>x.v!==tr[0].v))return[6,tr[0].v,pa.find(x=>x.v!==tr[0].v).v];
+ for(const s of suits){let f=cs.filter(c=>c.s===s);if(f.length>=5)return[5,...f.map(c=>val(c.r)).sort((a,b)=>b-a).slice(0,5)]}
+ let st=straight(cs);if(st)return[4,st];
+ if(tr.length)return[3,tr[0].v,...g.filter(x=>x.v!==tr[0].v).map(x=>x.v).slice(0,2)];
+ let p=g.filter(x=>x.n===2);
+ if(p.length>=2)return[2,p[0].v,p[1].v,...g.filter(x=>x.n===1).map(x=>x.v).slice(0,1)];
+ if(p.length)return[1,p[0].v,...g.filter(x=>x.v!==p[0].v).map(x=>x.v).slice(0,3)];
+ return[0,...g.map(x=>x.v).slice(0,5)];
+}
+function cmp(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){let x=a[i]||0,y=b[i]||0;if(x!==y)return x>y?1:-1}return 0}
+
+function calculate(){
+ const deck=[];for(const r of ranks)for(const s of suits)deck.push({r,s});
+ const key=c=>c.r+c.s,known=new Set(hand.map(key)),rem=deck.filter(c=>!known.has(key(c)));
+ let w=0,t=0,l=0,total=0;
+
+ for(let i=0;i<rem.length-1;i++)for(let j=i+1;j<rem.length;j++){
+  const opp=[rem[i],rem[j]],rest=rem.filter((_,k)=>k!==i&&k!==j);
+  for(let a=0;a<rest.length-4;a++)for(let b=a+1;b<rest.length-3;b++)for(let c=b+1;c<rest.length-2;c++)
+  for(let d=c+1;d<rest.length-1;d++)for(let e=d+1;e<rest.length;e++){
+   const board=[rest[a],rest[b],rest[c],rest[d],rest[e]];
+   const z=cmp(score(hand.concat(board)),score(opp.concat(board)));
+   if(z>0)w++;else if(z<0)l++;else t++;total++;
+  }
+ }
+ const W=w/total*100,T=t/total*100,L=l/total*100;
+ render("resultCards",hand);
+ document.getElementById("win").textContent=W.toFixed(1)+"%";
+ document.getElementById("wp").textContent=W.toFixed(1)+"%";
+ document.getElementById("tp").textContent=T.toFixed(1)+"%";
+ document.getElementById("lp").textContent=L.toFixed(1)+"%";
+ document.getElementById("wf").style.width=W+"%";
+ document.getElementById("tf").style.width=T+"%";
+ document.getElementById("lf").style.width=L+"%";
+}
+</script>
+</body>
+</html>
