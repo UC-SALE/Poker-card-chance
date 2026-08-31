@@ -21,7 +21,6 @@
         h2 { margin-bottom: 5px; text-align: center; font-size: 22px; }
         p.subtitle { color: var(--text-muted); margin-bottom: 25px; text-align: center; font-size: 14px; }
 
-        /* Томруулсан товчлууруудын сетка */
         .grid-suits { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 380px; }
         .grid-ranks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 380px; }
         
@@ -83,6 +82,14 @@
         <div class="grid-ranks" id="ranks2"></div>
     </div>
 
+    <!-- СОНГОЛТ: Флоп оруулах эсвэл шууд Pre-flop шинжлэх -->
+    <div id="stepChoice" class="screen">
+        <h2>Тоглоомын үе шат</h2>
+        <p class="subtitle">Та гартаа байгаа 2 карткаа орууллаа. Цаашид юу хийх вэ?</p>
+        <button class="btn-restart" style="margin-bottom:12px;" onclick="skipToPreFlopResult()">Зөвхөн 2 картаар (Pre-flop) дүгнэлт авах</button>
+        <button class="btn-restart" style="background:var(--surface); color:var(--text); border:2px solid #444;" onclick="startFlopInputFlow()">Газар сөхөгдсөн мод (Flop) оруулах</button>
+    </div>
+
     <!-- ФЛОП СӨХӨГДӨХ 3 КАРТЫГ ГАРААС ОРУУЛАХ ЦЭС -->
     <div id="stepFlopSuit" class="screen">
         <h2 id="flop-suit-title">Флоп (1/3 карт)</h2>
@@ -100,37 +107,37 @@
     <!-- Тооцоолж байна -->
     <div id="stepCalc" class="screen">
         <h2>Тооцоолж байна...</h2>
-        <p class="subtitle">Monte Carlo симуляци хийж байна</p>
+        <p class="subtitle">Симуляци хийж байна</p>
         <div class="loader"></div>
     </div>
 
     <!-- Үр дүн -->
     <div id="stepResult" class="screen">
-        <h2>Үр дүн ба Стратеги</h2><p class="subtitle">Симуляцийн үр дүн</p>
+        <h2>Үр дүн ба Стратеги</h2><p class="subtitle">Тоглоомын зөвлөмж</p>
         
         <div class="result-card">
             <div class="section-title">Таны гар</div>
             <div class="cards-row" id="my-hole-cards"></div>
             
-            <div class="section-title">Таны оруулсан Флоп мод</div>
+            <div class="section-title" id="board-title-label">Мод (Board)</div>
             <div class="cards-row" id="flop-cards-result"></div>
 
             <div class="stat-row">
-                <div class="stat-labels"><span>Хожих</span><span id="txt-win" style="color: var(--win)">0%</span></div>
+                <div class="stat-labels"><span>Хожих магадлал</span><span id="txt-win" style="color: var(--win)">0%</span></div>
                 <div class="bar-bg"><div class="bar-fill" id="bar-win" style="background: var(--win);"></div></div>
             </div>
             <div class="stat-row">
-                <div class="stat-labels"><span>Тэнцэх</span><span id="txt-tie" style="color: var(--tie)">0%</span></div>
+                <div class="stat-labels"><span>Тэнцэх магадлал</span><span id="txt-tie" style="color: var(--tie)">0%</span></div>
                 <div class="bar-bg"><div class="bar-fill" id="bar-tie" style="background: var(--tie);"></div></div>
             </div>
             <div class="stat-row">
-                <div class="stat-labels"><span>Хожигдох</span><span id="txt-loss" style="color: var(--loss)">0%</span></div>
+                <div class="stat-labels"><span>Хожигдох магадлал</span><span id="txt-loss" style="color: var(--loss)">0%</span></div>
                 <div class="bar-bg"><div class="bar-fill" id="bar-loss" style="background: var(--loss);"></div></div>
             </div>
         </div>
 
         <div class="module-box" id="flopped-mod-container">
-            <div class="module-header" id="mod-title">♠️ Мод болон Тоглоомын төлөв</div>
+            <div class="module-header" id="mod-title">♠️ Стратегийн зөвлөмж</div>
             <div class="module-desc" id="mod-desc">Мэдээлэл боловсруулж байна...</div>
         </div>
 
@@ -152,7 +159,8 @@
             c1: { s: null, r: null }, 
             c2: { s: null, r: null },
             flop: [],
-            tempSuit: null
+            tempSuit: null,
+            isPreFlopOnly: false
         };
 
         function initUI() {
@@ -184,8 +192,19 @@
                 }
                 state.c2.r = r;
                 state.flop = [];
-                startFlopInput();
+                showScreen('stepChoice');
             }
+        }
+
+        function skipToPreFlopResult() {
+            state.isPreFlopOnly = true;
+            showScreen('stepCalc');
+            setTimeout(runSimulation, 50);
+        }
+
+        function startFlopInputFlow() {
+            state.isPreFlopOnly = false;
+            startFlopInput();
         }
 
         function initFlopInputUI() {
@@ -236,7 +255,7 @@
         }
 
         function resetApp() {
-            state = { c1: { s: null, r: null }, c2: { s: null, r: null }, flop: [], tempSuit: null };
+            state = { c1: { s: null, r: null }, c2: { s: null, r: null }, flop: [], tempSuit: null, isPreFlopOnly: false };
             document.getElementById('bar-win').style.width = '0%';
             document.getElementById('bar-tie').style.width = '0%';
             document.getElementById('bar-loss').style.width = '0%';
@@ -311,7 +330,7 @@
             }
 
             let wins = 0, ties = 0, losses = 0;
-            const iters = 2000;
+            const iters = 1500;
             
             for (let i = 0; i < iters; i++) {
                 for (let j = deck.length - 1; j > 0; j--) {
@@ -319,8 +338,16 @@
                     [deck[j], deck[k]] = [deck[k], deck[j]];
                 }
                 
-                let fullBoard = [...state.flop, deck[0], deck[1]];
-                let opp = [deck[2], deck[3]];
+                let fullBoard = [];
+                let opp = [];
+
+                if (state.isPreFlopOnly) {
+                    fullBoard = [deck[0], deck[1], deck[2], deck[3], deck[4]];
+                    opp = [deck[5], deck[6]];
+                } else {
+                    fullBoard = [...state.flop, deck[0], deck[1]];
+                    opp = [deck[2], deck[3]];
+                }
 
                 let myScore = evaluateHand([state.c1, state.c2, ...fullBoard]);
                 let oppScore = evaluateHand([...opp, ...fullBoard]);
@@ -339,9 +366,16 @@
                 `<div class="mini-card" style="color:${getSuitColor(state.c1.s)}">${getRankName(state.c1.r)}${getSuitIcon(state.c1.s)}</div>` +
                 `<div class="mini-card" style="color:${getSuitColor(state.c2.s)}">${getRankName(state.c2.r)}${getSuitIcon(state.c2.s)}</div>`;
 
-            document.getElementById('flop-cards-result').innerHTML = state.flop.map(c => 
-                `<div class="mini-card" style="color:${getSuitColor(c.s)}">${getRankName(c.r)}${getSuitIcon(c.s)}</div>`
-            ).join('');
+            if (state.isPreFlopOnly) {
+                document.getElementById('board-title-label').style.display = 'none';
+                document.getElementById('flop-cards-result').style.display = 'none';
+            } else {
+                document.getElementById('board-title-label').style.display = 'block';
+                document.getElementById('flop-cards-result').style.display = 'flex';
+                document.getElementById('flop-cards-result').innerHTML = state.flop.map(c => 
+                    `<div class="mini-card" style="color:${getSuitColor(c.s)}">${getRankName(c.r)}${getSuitIcon(c.s)}</div>`
+                ).join('');
+            }
 
             let pWin = ((wins / iters) * 100).toFixed(1);
             let pTie = ((ties / iters) * 100).toFixed(1);
@@ -351,38 +385,22 @@
             document.getElementById('txt-tie').innerText = pTie + '%';
             document.getElementById('txt-loss').innerText = pLoss + '%';
 
-            let isPocketPair = (state.c1.r === state.c2.r);
-            let hitSet = state.flop.some(c => c.r === state.c1.r);
             let modTitle = "";
             let modDesc = "";
 
-            if (isPocketPair && hitSet) {
-                modTitle = "🔥 Газар сөхөгдсөн мод (Flopped Set)!";
-                modDesc = "Таны халаасны хос карт таны оруулсан флоп модтой таарч маш хүчтэй Set үүслээ! Энэ үед ашиглаж <strong>Bet</strong> хийж мөнгө өсгөх эсвэл өрсөлдөгчөө шахаарай.";
-            } else if (parseFloat(pWin) > 65) {
-                modTitle = "💪 Маш өндөр магадлал (Strong Hand)";
-                modDesc = "Таны гар болон таны оруулсан флоп маш давуу байдал үүсгэлээ. Санаачилгыг гартаа авч <strong>Bet</strong> хийх нь зөв.";
-            } else if (parseFloat(pWin) >= 40) {
-                modTitle = "⚖️ Дунд зэргийн боломж (Marginal / Check)";
-                modDesc = "Боломжийн магадлалтай байна. Хэрэв өрсөлдөгч их бооцоо тавиагүй бол <strong>Check</strong> хийж үнэгүй карт харахыг хичээ.";
-            } else {
-                modTitle = "⚠️ Сул байрлал (Weak / Fold)";
-                modDesc = "Энэхүү флоп дээр ямар нэгэн ашигтай хослол үүссэнгүй эсвэл магадлал бага байна. Эрсдэлээс зайлсхийхийн тулд <strong>Fold</strong> хийх нь зөв.";
-            }
+            if (state.isPreFlopOnly) {
+                let r1 = state.c1.r, r2 = state.c2.r;
+                let isPair = (r1 === r2);
+                let isHighCard = (r1 >= 12 || r2 >= 12);
+                let isConnected = Math.abs(r1 - r2) <= 2;
+                let isSuited = (state.c1.s === state.c2.s);
 
-            document.getElementById('mod-title').innerHTML = modTitle;
-            document.getElementById('mod-desc').innerHTML = modDesc;
-
-            showScreen('stepResult');
-
-            setTimeout(() => {
-                document.getElementById('bar-win').style.width = pWin + '%';
-                document.getElementById('bar-tie').style.width = pTie + '%';
-                document.getElementById('bar-loss').style.width = pLoss + '%';
-            }, 50);
-        }
-
-        initUI();
-    </script>
-</body>
-</html>
+                if (isPair && r1 >= 10) {
+                    modTitle = "🚀 Өндөр хос (Premium Pair) -> RAISE";
+                    modDesc = "Таны гарт хүчирхэг хос (AA, KK, QQ, JJ, 1010) байна. Энэ бол маш сайн гар тул өрсөлдөгчдөө дарамт үзүүлж <strong>RAISE</strong> хийх буюу бооцоог өсгөх нь хамгийн ашигтай.";
+                } else if (isPair) {
+                    modTitle = "⚖️ Дунд болон бага хос -> CHECK / CALL";
+                    modDesc = "Дунд эсвэл бага зэргийн хос байна. Флоп дээр Set (3 дахь карт таарах) олох зорилгоор сул бооцоог дагаж <strong>CALL</strong> хийх эсвэл үнэгүй карт харахын тулд <strong>CHECK</strong> хийх боломжтой.";
+                } else if (isHighCard && isSuited) {
+                    modTitle = "💪 Өндөр карт болон нэг масть -> RAISE / CALL";
+                    modDesc = "Хоёр өндөр карт нэг масть таарсан нь Flush болон Straight х
