@@ -1,110 +1,309 @@
 <!DOCTYPE html>
 <html lang="mn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#071a10">
-<title>Poker 2 Card Odds</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden}
-body{font-family:Arial,system-ui,sans-serif;background:#06140d;color:#fff}
-.screen{position:absolute;top:0;left:0;width:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;max-width:600px;margin:auto;background:radial-gradient(circle at 50% 10%,#24623f,#0b2d1d 45%,#06140d);visibility:hidden;opacity:0;transition:opacity 0.15s ease}
-.screen.active{visibility:visible;opacity:1;z-index:10}
-.title{position:absolute;top:calc(env(safe-area-inset-top) + 20px);font-size:25px;font-weight:900}
-.info{position:absolute;top:calc(env(safe-area-inset-top) + 62px);font-size:14px;color:#b5cdbd}
-.suits{width:min(92vw,450px);display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.suit{height:min(34vw,185px);min-height:125px;border:0;border-radius:24px;background:#fff;color:#111;font-size:clamp(70px,20vw,110px);box-shadow:0 12px 28px #0009;cursor:pointer}
-.red{color:#d72537!important}
-.suit:active,.rank:active,.back:active{transform:scale(.94)}
-.ranks{width:min(92vw,500px);display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.rank{height:clamp(58px,14vw,82px);border:0;border-radius:16px;background:#17472f;color:#fff;font-size:clamp(22px,6vw,34px);font-weight:900;box-shadow:0 5px 12px #0006;cursor:pointer}
-.back{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 18px);border:1px solid #ffffff25;border-radius:13px;padding:11px 22px;background:#ffffff12;color:#d1e0d6;font-size:15px;cursor:pointer}
-.cards{display:flex;gap:13px;margin-bottom:18px}
-.card{width:92px;height:125px;background:#fff;color:#111;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 25px #0009}
-.card.red{color:#d72537}.cr{font-size:31px;font-weight:900}.cs{font-size:42px}
-.resultbox{width:min(90vw,430px);padding:20px;background:#071b11;border:1px solid #2d704a;border-radius:22px;text-align:center}
-.big{font-size:62px;font-weight:950;color:#6df2a0}.muted{font-size:12px;color:#a5bdb0}
-.stat{text-align:left;margin-top:13px}.top{display:flex;justify-content:space-between;font-size:12px}.bar{height:8px;background:#ffffff14;border-radius:9px;margin-top:4px}.fill{height:100%;background:#59dd8e;border-radius:9px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Poker Магадлал Тооцоологч</title>
+    <style>
+        :root {
+            --bg: #121212; --surface: #1e1e1e;
+            --primary: #bb86fc; --text: #ffffff; --text-muted: #aaaaaa;
+            --win: #03dac6; --loss: #cf6679; --tie: #ffb300;
+            --red-suit: #ff4c4c; --black-suit: #ffffff;
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); user-select: none; overscroll-behavior-y: contain; }
+        
+        .screen { display: none; flex-direction: column; align-items: center; justify-content: start; min-height: 100vh; padding: 30px 20px; }
+        .screen.active { display: flex; animation: fadeIn 0.3s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { margin-bottom: 5px; text-align: center; font-size: 22px; }
+        p.subtitle { color: var(--text-muted); margin-bottom: 30px; text-align: center; font-size: 14px; }
+
+        .grid-suits { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 350px; }
+        .grid-ranks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 350px; }
+        
+        button { 
+            background: var(--surface); border: 2px solid #333; border-radius: 12px;
+            color: var(--text); font-size: 28px; font-weight: bold; padding: 20px 10px;
+            cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s, border-color 0.2s; display: flex; justify-content: center; align-items: center;
+        }
+        button:active { transform: scale(0.92); border-color: var(--primary); }
+        button.red { color: var(--red-suit); }
+        button.black { color: var(--black-suit); }
+
+        .loader { border: 4px solid #333; border-top: 4px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-top: 50px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .result-card { background: var(--surface); padding: 20px; border-radius: 16px; width: 100%; max-width: 400px; margin-bottom: 20px; text-align: center; }
+        .my-hand { font-size: 32px; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px; }
+        
+        .stat-row { margin-bottom: 12px; text-align: left; }
+        .stat-labels { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px; font-weight: 600; }
+        .bar-bg { width: 100%; background: #333; height: 18px; border-radius: 9px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .advice-box { background: #262626; border-left: 4px solid var(--primary); padding: 12px 15px; border-radius: 8px; width: 100%; max-width: 400px; margin-bottom: 20px; text-align: left; font-size: 14px; }
+        .advice-title { font-weight: bold; margin-bottom: 4px; color: var(--primary); }
+
+        .btn-restart { background: var(--primary); color: #000; border: none; font-size: 18px; padding: 15px 30px; width: 100%; max-width: 400px; }
+    </style>
 </head>
 <body>
 
-<!-- 1-р картын масть -->
-<div id="screenSuit1" class="screen active">
-  <div class="title">♠ POKER ODDS</div>
-  <div class="info">1-р картын масть сонго</div>
-  <div class="suits">
-    <button type="button" class="suit" data-step="1" data-suit="♠">♠</button>
-    <button type="button" class="suit red" data-step="1" data-suit="♥">♥</button>
-    <button type="button" class="suit" data-step="1" data-suit="♣">♣</button>
-    <button type="button" class="suit red" data-step="1" data-suit="♦">♦</button>
-  </div>
-</div>
+    <div id="step1" class="screen active">
+        <h2>1-р карт</h2><p class="subtitle">Масть сонгоно уу</p>
+        <div class="grid-suits" id="suits1"></div>
+    </div>
 
-<!-- 1-р картын rank -->
-<div id="screenRank1" class="screen">
-  <div class="title">1-Р КАРТ</div>
-  <div class="info">A · K · Q · J · 10 ... сонго</div>
-  <div id="ranks1" class="ranks"></div>
-  <button type="button" class="back" data-back="suit1">← Буцах</button>
-</div>
+    <div id="step2" class="screen">
+        <h2>1-р карт</h2><p class="subtitle">Утга сонгоно уу</p>
+        <div class="grid-ranks" id="ranks1"></div>
+    </div>
 
-<!-- 2-р картын масть -->
-<div id="screenSuit2" class="screen">
-  <div class="title">♠ POKER ODDS</div>
-  <div class="info">2-р картын масть сонго</div>
-  <div id="card1" class="cards"></div>
-  <div class="suits">
-    <button type="button" class="suit" data-step="2" data-suit="♠">♠</button>
-    <button type="button" class="suit red" data-step="2" data-suit="♥">♥</button>
-    <button type="button" class="suit" data-step="2" data-suit="♣">♣</button>
-    <button type="button" class="suit red" data-step="2" data-suit="♦">♦</button>
-  </div>
-  <button type="button" class="back" data-back="rank1">← Буцах</button>
-</div>
+    <div id="step3" class="screen">
+        <h2>2-р карт</h2><p class="subtitle">Масть сонгоно уу</p>
+        <div class="grid-suits" id="suits2"></div>
+    </div>
 
-<!-- 2-р картын rank -->
-<div id="screenRank2" class="screen">
-  <div class="title">2-Р КАРТ</div>
-  <div class="info">Тоо / дүрсээ сонго</div>
-  <div id="card2" class="cards"></div>
-  <div id="ranks2" class="ranks"></div>
-  <button type="button" class="back" data-back="suit2">← Буцах</button>
-</div>
+    <div id="step4" class="screen">
+        <h2>2-р карт</h2><p class="subtitle">Утга сонгоно уу</p>
+        <div class="grid-ranks" id="ranks2"></div>
+    </div>
 
-<!-- Үр дүн -->
-<div id="screenResult" class="screen">
-  <div class="title">♠ POKER ODDS</div>
-  <div id="finalCards" class="cards"></div>
-  <div class="resultbox">
-    <div id="big" class="big">Тооцож байна...</div>
-    <div class="muted">WIN PROBABILITY</div>
-    <div class="stat"><div class="top"><span>Win</span><b id="wp">—</b></div><div class="bar"><div id="wf" class="fill"></div></div></div>
-    <div class="stat"><div class="top"><span>Tie</span><b id="tp">—</b></div><div class="bar"><div id="tf" class="fill"></div></div></div>
-    <div class="stat"><div class="top"><span>Lose</span><b id="lp">—</b></div><div class="bar"><div id="lf" class="fill"></div></div></div>
-  </div>
-  <button type="button" class="back" data-back="reset">↺ Дахин сонгох</button>
-</div>
+    <div id="step5" class="screen">
+        <h2>Тооцоолж байна...</h2>
+        <p class="subtitle">Monte Carlo симуляци ажиллаж байна</p>
+        <div class="loader"></div>
+    </div>
 
-<script>
-const RANKS=["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
-let hand=[];
-let firstSuit="";
-let secondSuit="";
+    <div id="step6" class="screen">
+        <h2>Үр дүн ба Зөвлөмж</h2><p class="subtitle">3000 удаагийн симуляци</p>
+        <div class="result-card">
+            <div class="my-hand" id="hand-display"></div>
+            
+            <div class="stat-row">
+                <div class="stat-labels"><span>Хожих магадлал</span><span id="txt-win" style="color: var(--win)">0%</span></div>
+                <div class="bar-bg"><div class="bar-fill" id="bar-win" style="background: var(--win);"></div></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-labels"><span>Тэнцэх магадлал</span><span id="txt-tie" style="color: var(--tie)">0%</span></div>
+                <div class="bar-bg"><div class="bar-fill" id="bar-tie" style="background: var(--tie);"></div></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-labels"><span>Хожигдох магадлал</span><span id="txt-loss" style="color: var(--loss)">0%</span></div>
+                <div class="bar-bg"><div class="bar-fill" id="bar-loss" style="background: var(--loss);"></div></div>
+            </div>
+        </div>
 
-function showScreen(id){
-  document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
-  const target=document.getElementById(id);
-  if(target) target.classList.add("active");
-}
+        <div class="advice-box" id="advice-content">
+            <div class="advice-title">Тоглоомын зөвлөмж:</div>
+            <div id="advice-text">Ачаалж байна...</div>
+        </div>
 
-function makeRanks(containerId,num){
-  const box=document.getElementById(containerId);
-  box.innerHTML="";
-  RANKS.forEach(r=>{
-    const b=document.createElement("button");
-    b.type="button";
+        <button class="btn-restart" onclick="resetApp()">Дахин эхлэх</button>
+    </div>
+
+    <script>
+        const suits = [
+            { s: 0, icon: '♠', color: 'black' }, { s: 1, icon: '♥', color: 'red' },
+            { s: 2, icon: '♣', color: 'black' }, { s: 3, icon: '♦', color: 'red' }
+        ];
+        const ranks = [
+            { r: 14, n: 'A' }, { r: 13, n: 'K' }, { r: 12, n: 'Q' }, { r: 11, n: 'J' },
+            { r: 10, n: '10' }, { r: 9, n: '9' }, { r: 8, n: '8' }, { r: 7, n: '7' },
+            { r: 6, n: '6' }, { r: 5, n: '5' }, { r: 4, n: '4' }, { r: 3, n: '3' }, { r: 2, n: '2' }
+        ];
+
+        let state = { step: 1, c1: { s: null, r: null }, c2: { s: null, r: null } };
+
+        function initUI() {
+            const createSuits = (stepNum) => suits.map(suit => 
+                `<button class="${suit.color}" onclick="setSuit(${stepNum}, ${suit.s})">${suit.icon}</button>`
+            ).join('');
+            
+            const createRanks = (stepNum) => ranks.map(rank => 
+                `<button onclick="setRank(${stepNum}, ${rank.r})">${rank.n}</button>`
+            ).join('');
+
+            document.getElementById('suits1').innerHTML = createSuits(1);
+            document.getElementById('suits2').innerHTML = createSuits(2);
+            document.getElementById('ranks1').innerHTML = createRanks(1);
+            document.getElementById('ranks2').innerHTML = createRanks(2);
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+        }
+
+        function setSuit(cardNum, s) {
+            if (cardNum === 1) state.c1.s = s; else state.c2.s = s;
+            showStep(cardNum === 1 ? 2 : 4);
+        }
+
+        function setRank(cardNum, r) {
+            if (cardNum === 1) {
+                state.c1.r = r;
+                showStep(3);
+            } else {
+                if (state.c1.s === state.c2.s && state.c1.r === r) {
+                    alert("Энэ карт сонгогдсон байна. Өөр утга сонгоно уу.");
+                    return;
+                }
+                state.c2.r = r;
+                showStep(5);
+                setTimeout(runSimulation, 50);
+            }
+        }
+
+        function resetApp() {
+            state = { step: 1, c1: { s: null, r: null }, c2: { s: null, r: null } };
+            document.getElementById('bar-win').style.width = '0%';
+            document.getElementById('bar-tie').style.width = '0%';
+            document.getElementById('bar-loss').style.width = '0%';
+            showStep(1);
+        }
+
+        function evaluateHand(cards) {
+            cards.sort((a, b) => b.r - a.r);
+            let rC = new Array(15).fill(0), sC = new Array(4).fill(0);
+            cards.forEach(c => { rC[c.r]++; sC[c.s]++; });
+
+            let flushS = sC.findIndex(c => c >= 5);
+            let flushCards = flushS >= 0 ? cards.filter(c => c.s === flushS) : null;
+
+            const getStr = (rSet) => {
+                let cons = 0;
+                for (let i = 14; i >= 2; i--) {
+                    if (rSet[i] > 0) { cons++; if (cons === 5) return i + 4; } else cons = 0;
+                }
+                if (cons === 4 && rSet[14] > 0 && rSet[2] > 0 && rSet[3] > 0 && rSet[4] > 0 && rSet[5] > 0) return 5;
+                return 0;
+            };
+
+            let strHigh = getStr(rC);
+            let strFlushHigh = flushCards ? getStr(flushCards.reduce((acc, c) => { acc[c.r] = 1; return acc; }, new Array(15).fill(0))) : 0;
+
+            if (strFlushHigh) return [8, strFlushHigh];
+
+            let p = [], t = [], q = [];
+            for (let i = 14; i >= 2; i--) {
+                if (rC[i] === 4) q.push(i);
+                if (rC[i] === 3) t.push(i);
+                if (rC[i] === 2) p.push(i);
+            }
+
+            if (q.length > 0) return [7, q[0], cards.find(c => c.r !== q[0]).r];
+            if (t.length > 0 && (p.length > 0 || t.length > 1)) return [6, t[0], t.length > 1 ? t[1] : p[0]];
+            if (flushCards) return [5, flushCards[0].r, flushCards[1].r, flushCards[2].r, flushCards[3].r, flushCards[4].r];
+            if (strHigh) return [4, strHigh];
+            if (t.length > 0) {
+                let k = cards.filter(c => c.r !== t[0]);
+                return [3, t[0], k[0].r, k[1].r];
+            }
+            if (p.length > 1) {
+                let k = cards.find(c => c.r !== p[0] && c.r !== p[1]);
+                return [2, p[0], p[1], k.r];
+            }
+            if (p.length === 1) {
+                let k = cards.filter(c => c.r !== p[0]);
+                return [1, p[0], k[0].r, k[1].r, k[2].r];
+            }
+            return [0, cards[0].r, cards[1].r, cards[2].r, cards[3].r, cards[4].r];
+        }
+
+        function compare(s1, s2) {
+            for (let i = 0; i < s1.length; i++) {
+                if (s1[i] > s2[i]) return 1;
+                if (s2[i] > s1[i]) return -1;
+            }
+            return 0;
+        }
+
+        function runSimulation() {
+            let deck = [];
+            for (let s = 0; s < 4; s++) {
+                for (let r = 2; r <= 14; r++) {
+                    if ((s === state.c1.s && r === state.c1.r) || (s === state.c2.s && r === state.c2.r)) continue;
+                    deck.push({ s, r });
+                }
+            }
+
+            let wins = 0, ties = 0, losses = 0;
+            const iters = 3000;
+            
+            for (let i = 0; i < iters; i++) {
+                for (let j = deck.length - 1; j > 0; j--) {
+                    const k = Math.floor(Math.random() * (j + 1));
+                    [deck[j], deck[k]] = [deck[k], deck[j]];
+                }
+                
+                let board = [deck[0], deck[1], deck[2], deck[3], deck[4]];
+                let opp = [deck[5], deck[6]];
+
+                let myScore = evaluateHand([state.c1, state.c2, ...board]);
+                let oppScore = evaluateHand([...opp, ...board]);
+                let res = compare(myScore, oppScore);
+                
+                if (res === 1) wins++;
+                else if (res === -1) losses++;
+                else ties++;
+            }
+
+            const getRankName = r => ranks.find(x => x.r === r).n;
+            const getSuitIcon = s => suits.find(x => x.s === s).icon;
+            const getSuitColor = s => suits.find(x => x.s === s).color === 'red' ? 'var(--red-suit)' : 'var(--text)';
+            
+            document.getElementById('hand-display').innerHTML = 
+                `<span style="color:${getSuitColor(state.c1.s)}">${getRankName(state.c1.r)}${getSuitIcon(state.c1.s)}</span> ` +
+                `<span style="color:${getSuitColor(state.c2.s)}">${getRankName(state.c2.r)}${getSuitIcon(state.c2.s)}</span>`;
+
+            let pWin = ((wins / iters) * 100).toFixed(1);
+            let pTie = ((ties / iters) * 100).toFixed(1);
+            let pLoss = ((losses / iters) * 100).toFixed(1);
+
+            document.getElementById('txt-win').innerText = pWin + '%';
+            document.getElementById('txt-tie').innerText = pTie + '%';
+            document.getElementById('txt-loss').innerText = pLoss + '%';
+
+            // Check / Bet / Fold стратеги болон "Газар сөхөгдсөн мод" логик нэмэх нь
+            let advice = "";
+            let winNum = parseFloat(pWin);
+            let isPair = (state.c1.r === state.c2.r);
+            let isHighCard = (state.c1.r >= 12 || state.c2.r >= 12);
+
+            if (isPair) {
+                advice = `🔥 <strong>Газар сөхөгдсөн мод (Set/Pair):</strong> Та хос картаар эхэлж байна! Флоп (Flop) дээр гурвалсан карт (Set) болох өндөр магадлалтай. Маш сайн гар тул <strong>Bet</strong> хийж бооцоог өсгөх эсвэл өрсөлдөгчөө шахах хэрэгтэй.`;
+            } else if (winNum > 55) {
+                advice = `💪 Хожих магадлал өндөр байна. Сайн картууд тул санаачилгыг гартаа авч <strong>Bet</strong> хийж тоглоорой.`;
+            } else if (winNum >= 40 && winNum <= 55) {
+                advice = `⚖️ Тэнцүүхэн боломж байна. Хэрэв өрсөлдөгч том бооцоо тавиагүй бол <strong>Check</strong> хийж дараагийн картыг харах нь зүйтэй.`;
+            } else {
+                if (isHighCard) {
+                    advice = `⚠️ Магадлал бага ч өндөр хөзөртэй (High card) байна. Өрсөлдөгч сул байвал bluff хийж болох ч болгоомжтой байж <strong>Check</strong> эсвэл хүнд үед <strong>Fold</strong> хийхэд бэлэн бай.`;
+                } else {
+                    advice = `❌ Магадлал болон хөзрийн чанар сул байна. Эрсдэл хүлээхгүйн тулд <strong>Fold</strong> хийсэн нь дээр.`;
+                }
+            }
+
+            document.getElementById('advice-text').innerHTML = advice;
+
+            showStep(6);
+
+            setTimeout(() => {
+                document.getElementById('bar-win').style.width = pWin + '%';
+                document.getElementById('bar-tie').style.width = pTie + '%';
+                document.getElementById('bar-loss').style.width = pLoss + '%';
+            }, 50);
+        }
+
+        initUI();
+    </script>
+</body>
+</html>
     b.className="rank";
     b.textContent=r;
     b.addEventListener("click",function(e){
